@@ -77,7 +77,7 @@ function handleInput(e: KeyboardEvent): void {
 }
 
 // Also support pointer/touch for testing
-function handlePointer(e: PointerEvent): void {
+function handlePointer(_e: PointerEvent): void {
   game.flap();
 }
 
