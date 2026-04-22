@@ -1,58 +1,50 @@
-# Tucano Flap — Task Queue
+# Tucano Flap — Task Queue v0.2
 
-## Current Sprint: Loop 1 — Foundation (v0.1)
+## Sprint: v0.2 — Polish & Power
 
 ### Ready to Start
-- [ ] **TASK-001**: Project scaffold — Vite + TypeScript + Canvas setup
-- [ ] **TASK-002**: Core game loop — requestAnimationFrame, delta time
-- [ ] **TASK-003**: Tucano entity — position, velocity, gravity physics
-- [ ] **TASK-004**: Flap mechanic — impulse velocity, rotation
-- [ ] **TASK-005**: Pipe generation — spawn timers, gap positioning
-- [ ] **TASK-006**: Collision detection — AABB for pipes, ground, ceiling
-- [ ] **TASK-007**: Score system — pass detection, UI display
-- [ ] **TASK-008**: Game states — menu, playing, game over, restart
-- [ ] **TASK-009**: Samsung TV controls — key mapping, focus management
-- [ ] **TASK-010**: Audio system — Web Audio API wrapper, basic SFX
+- [ ] **TASK-201**: High score persistence with localStorage (IMP-005)
+- [ ] **TASK-202**: Enhanced particle system with feather trails (IMP-006)
+- [ ] **TASK-203**: Unit test suite with Vitest (IMP-009)
+- [ ] **TASK-204**: Web Audio API with bossa nova loop (IMP-002)
+- [ ] **TASK-205**: Sprite system architecture (IMP-001)
+- [ ] **TASK-206**: Difficulty progression system (IMP-004)
+- [ ] **TASK-207**: CRT scanline effects (IMP-008)
+- [ ] **TASK-208**: Parallax background layers (IMP-003)
+- [ ] **TASK-209**: Accessibility options (IMP-010)
+- [ ] **TASK-210**: Power-up system (IMP-007)
 
 ### Blocked
-(none yet)
+(none)
+
+### In Progress
+(none)
 
 ### Completed
-(none yet)
+- [x] **TASK-101**: Core game loop v0.1
+- [x] **TASK-102**: Physics and collision
+- [x] **TASK-103**: TV remote controls
+- [x] **TASK-104**: GitHub Pages deployment
 
 ---
 
-## Loop 2 — Polish (v0.2) [PLANNED]
-- Animated sprites
-- Particle effects
-- Background music
-- High score persistence
-- Pause functionality
-- Visual polish
-- Responsive design
-- Loading screen
-- CRT effect
-- Unit tests
+## Build Commands
+```bash
+npm install        # Install dependencies
+npm run build      # TypeScript + Vite build
+npm run test       # Run unit tests
+npm run dev        # Development server
+```
+
+## Deploy
+```bash
+git add -A
+git commit -m "🎮 v0.2.x - [feature description]"
+git push origin main
+# GitHub Actions auto-deploys to Pages
+```
 
 ---
 
-## Loop 3 — Features (v0.3) [PLANNED]
-- Power-ups
-- Level progression
-- Pipe variations
-- Unlockable backgrounds
-- Achievements
-- Daily challenges
-- Local multiplayer
-- Accessibility
-- Performance optimization
-- Analytics
-
----
-
-## Meta Tasks
-- [ ] **META-001**: Create automated evaluation script
-- [ ] **META-002**: Set up GitHub Actions CI/CD
-- [ ] **META-003**: Create "generate improvements" agent prompt
-- [ ] **META-004**: Performance budget checker
-- [ ] **META-005**: TV browser compatibility tester
+*Queue Version: 0.2*
+*Target URL: https://joaoccaldas.github.io/tucano-flap/*
