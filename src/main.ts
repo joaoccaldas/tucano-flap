@@ -1,0 +1,108 @@
+import { Game } from './game/Game.js';
+
+// Samsung TV Browser compatibility
+declare global {
+  interface Window {
+    tizen?: unknown;
+    webapis?: unknown;
+  }
+}
+
+const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
+if (!canvas) {
+  throw new Error('Canvas not found');
+}
+
+// Set canvas size to match display resolution for crisp rendering
+const dpr = window.devicePixelRatio || 1;
+const targetWidth = 1920;
+const targetHeight = 1080;
+
+canvas.width = targetWidth * dpr;
+canvas.height = targetHeight * dpr;
+canvas.style.width = '100%';
+canvas.style.height = '100%';
+
+const ctx = canvas.getContext('2d');
+if (!ctx) {
+  throw new Error('Could not get canvas context');
+}
+
+// Scale context for high DPI displays
+ctx.scale(dpr, dpr);
+
+// Initialize game
+const game = new Game(ctx, targetWidth, targetHeight);
+
+// Samsung TV remote support
+// Standard key codes for TV browsers
+const TV_KEYS = {
+  OK: 13,      // Enter
+  UP: 38,      // Arrow Up
+  DOWN: 40,    // Arrow Down
+  LEFT: 37,    // Arrow Left
+  RIGHT: 39,   // Arrow Right
+  BACK: 10009, // Samsung TV back
+  EXIT: 27,    // Escape
+  RED: 403,    // Red button
+  GREEN: 404,  // Green button
+  YELLOW: 405, // Yellow button
+  BLUE: 406,   // Blue button
+};
+
+// Input handling
+function handleInput(e: KeyboardEvent): void {
+  const keyCode = e.keyCode || e.which;
+  
+  switch (keyCode) {
+    case TV_KEYS.OK:
+    case 32: // Spacebar (fallback)
+      game.flap();
+      e.preventDefault();
+      break;
+    case TV_KEYS.BACK:
+    case TV_KEYS.EXIT:
+      game.togglePause();
+      e.preventDefault();
+      break;
+    case TV_KEYS.UP:
+    case TV_KEYS.DOWN:
+    case TV_KEYS.LEFT:
+    case TV_KEYS.RIGHT:
+      // Menu navigation handled in menu state
+      game.navigate(keyCode);
+      e.preventDefault();
+      break;
+  }
+}
+
+// Also support pointer/touch for testing
+function handlePointer(e: PointerEvent): void {
+  game.flap();
+}
+
+// Event listeners
+window.addEventListener('keydown', handleInput);
+canvas.addEventListener('pointerdown', handlePointer);
+
+// Prevent default browser zoom/pan
+document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+document.addEventListener('gesturestart', (e) => e.preventDefault());
+document.addEventListener('gesturechange', (e) => e.preventDefault());
+document.addEventListener('gestureend', (e) => e.preventDefault());
+
+// Start game loop
+game.start();
+
+// Log for debugging
+console.log('🐦 Tucano Flap initialized');
+console.log('Press OK/Enter to flap, BACK/Escape to pause');
+
+// Samsung TV specific: prevent screen timeout
+if (window.tizen) {
+  // @ts-ignore
+  window.tizen.power.request('SCREEN', 'SCREEN_NORMAL');
+}
+
+// Expose for debugging
+(window as any).game = game;

@@ -1,0 +1,22 @@
+{
+  "name": "tucano-flap",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint src --ext .ts,.js",
+    "audit:perf": "node scripts/perf-audit.js",
+    "eval:game": "node scripts/evaluate-game.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "eslint": "^8",
+    "typescript": "^5",
+    "vite": "^5",
+    "vitest": "^1"
+  }
+}
