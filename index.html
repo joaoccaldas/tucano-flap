@@ -86,7 +86,7 @@
     <div id="landing-screen">
       <div class="menu-card">
         <div class="menu-title">TUCANO FLAP 🇧🇷</div>
-        <div class="menu-subtitle">A colorful Brazil-themed landing page for TV and mobile. Choose your player name and your Brazil animal hero, then start the flight. Current hero: <span id="menu-name" class="menu-player">Nono Caldas</span> with <span id="menu-animal" class="menu-player">tucano</span>.</div>
+        <div class="menu-subtitle">A colorful Brazil-themed landing page for TV and mobile. Choose your player name, your Brazil animal hero, and your difficulty, then start the flight. Current hero: <span id="menu-name" class="menu-player">Nono Caldas</span> with <span id="menu-animal" class="menu-player">tucano</span> on <span id="menu-difficulty" class="menu-player">easy</span>.</div>
         <label class="menu-label" for="player-name">Player name</label>
         <input id="player-name" class="menu-input" type="text" maxlength="24" value="Nono Caldas" autocomplete="off" />
         <label class="menu-label" for="animal-select">Animal sprite</label>
@@ -95,6 +95,12 @@
           <option value="arara">Arara</option>
           <option value="capivara">Capivara</option>
           <option value="jaguar">Jaguar</option>
+        </select>
+        <label class="menu-label" for="difficulty-select">Difficulty</label>
+        <select id="difficulty-select" class="menu-select">
+          <option value="easy">TV Easy</option>
+          <option value="normal">Normal</option>
+          <option value="chaos">Chaos</option>
         </select>
         <div class="menu-row">
           <button id="start-game" class="menu-button">Start game</button>

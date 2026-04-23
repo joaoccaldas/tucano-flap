@@ -14,7 +14,9 @@ const nameInput = document.getElementById('player-name') as HTMLInputElement | n
 const startButton = document.getElementById('start-game') as HTMLButtonElement | null;
 const menuName = document.getElementById('menu-name') as HTMLSpanElement | null;
 const animalSelect = document.getElementById('animal-select') as HTMLSelectElement | null;
+const difficultySelect = document.getElementById('difficulty-select') as HTMLSelectElement | null;
 const menuAnimal = document.getElementById('menu-animal') as HTMLSpanElement | null;
+const menuDifficulty = document.getElementById('menu-difficulty') as HTMLSpanElement | null;
 
 if (!canvas) {
   throw new Error('Canvas not found');
@@ -53,11 +55,18 @@ if (animalSelect) {
 if (menuAnimal) {
   menuAnimal.textContent = game.getAnimal();
 }
+if (difficultySelect) {
+  difficultySelect.value = game.getDifficulty();
+}
+if (menuDifficulty) {
+  menuDifficulty.textContent = game.getDifficulty();
+}
 
 function syncMenu(): void {
   const nextName = nameInput?.value || 'Nono Caldas';
   game.setPlayerName(nextName);
   game.setAnimal((animalSelect?.value as 'tucano' | 'arara' | 'capivara' | 'jaguar') || 'tucano');
+  game.setDifficulty((difficultySelect?.value as 'easy' | 'normal' | 'chaos') || 'easy');
   if (nameInput) {
     nameInput.value = game.getPlayerName();
   }
@@ -66,6 +75,9 @@ function syncMenu(): void {
   }
   if (menuAnimal) {
     menuAnimal.textContent = game.getAnimal();
+  }
+  if (menuDifficulty) {
+    menuDifficulty.textContent = game.getDifficulty();
   }
 }
 
@@ -142,6 +154,7 @@ canvas.addEventListener('pointerdown', handlePointer);
 
 nameInput?.addEventListener('input', syncMenu);
 animalSelect?.addEventListener('change', syncMenu);
+difficultySelect?.addEventListener('change', syncMenu);
 nameInput?.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     hideLanding();

@@ -1,6 +1,8 @@
 export enum GameState { MENU, PLAYING, PAUSED, GAME_OVER }
 
 type AnimalSprite = 'tucano' | 'arara' | 'capivara' | 'jaguar';
+type Difficulty = 'easy' | 'normal' | 'chaos';
+type ScoreEntry = { name: string; animal: AnimalSprite; score: number };
 
 export class Game {
   private ctx: CanvasRenderingContext2D;
@@ -12,6 +14,8 @@ export class Game {
   private highScore: number = 0;
   private playerName: string = 'Nono Caldas';
   private selectedAnimal: AnimalSprite = 'tucano';
+  private selectedDifficulty: Difficulty = 'easy';
+  private scoreHistory: ScoreEntry[] = [];
   
   // Entities
   private tucano!: { x: number; y: number; vy: number; width: number; height: number; rotation: number };
@@ -19,12 +23,12 @@ export class Game {
   private particles!: Array<{ x: number; y: number; vx: number; vy: number; life: number; color: string }>;
   
   // Constants
-  private readonly GRAVITY = 1450;
-  private readonly FLAP_FORCE = -470;
-  private readonly PIPE_SPEED = 250;
-  private readonly PIPE_SPAWN_RATE = 2.0;
-  private readonly PIPE_WIDTH = 80;
-  private readonly PIPE_GAP = 200;
+  private gravity = 1450;
+  private flapForce = -470;
+  private pipeSpeed = 250;
+  private pipeSpawnRate = 2.2;
+  private pipeWidth = 80;
+  private pipeGap = 220;
   private pipeTimer: number = 0;
   
   constructor(ctx: CanvasRenderingContext2D, width: number, height: number) {
@@ -60,7 +64,7 @@ export class Game {
   
   private update(dt: number): void {
     // Physics
-    this.tucano.vy += this.GRAVITY * dt;
+    this.tucano.vy += this.gravity * dt;
     this.tucano.y += this.tucano.vy * dt;
     this.tucano.rotation = Math.min(Math.PI / 4, Math.max(-Math.PI / 4, (this.tucano.vy / 500)));
     
@@ -72,13 +76,13 @@ export class Game {
     
     // Pipes
     this.pipeTimer += dt;
-    if (this.pipeTimer >= this.PIPE_SPAWN_RATE) {
+    if (this.pipeTimer >= this.pipeSpawnRate) {
       this.spawnPipe();
       this.pipeTimer = 0;
     }
     
     for (const pipe of this.pipes) {
-      pipe.x -= this.PIPE_SPEED * dt;
+      pipe.x -= this.pipeSpeed * dt;
       
       // Collision
       if (this.checkCollision(pipe)) {
@@ -87,7 +91,7 @@ export class Game {
       }
       
       // Score
-      if (!pipe.passed && pipe.x + this.PIPE_WIDTH < this.tucano.x) {
+      if (!pipe.passed && pipe.x + this.pipeWidth < this.tucano.x) {
         pipe.passed = true;
         this.score++;
         this.spawnParticles(this.tucano.x, this.tucano.y, '#FFD700', 10);
@@ -95,7 +99,7 @@ export class Game {
     }
     
     // Remove off-screen pipes
-    this.pipes = this.pipes.filter(p => p.x > -this.PIPE_WIDTH);
+    this.pipes = this.pipes.filter(p => p.x > -this.pipeWidth);
     
     // Particles
     for (const p of this.particles) {
@@ -108,9 +112,9 @@ export class Game {
   
   private spawnPipe(): void {
     const minGapY = 100;
-    const maxGapY = this.height - 100 - this.PIPE_GAP;
+    const maxGapY = this.height - 100 - this.pipeGap;
     const gapY = Math.random() * (maxGapY - minGapY) + minGapY;
-    this.pipes.push({ x: this.width + this.PIPE_WIDTH, gapY, passed: false });
+    this.pipes.push({ x: this.width + this.pipeWidth, gapY, passed: false });
   }
   
   private checkCollision(pipe: { x: number; gapY: number }): boolean {
@@ -120,9 +124,9 @@ export class Game {
     const tBottom = this.tucano.y + this.tucano.height/2;
     
     const pLeft = pipe.x;
-    const pRight = pipe.x + this.PIPE_WIDTH;
+    const pRight = pipe.x + this.pipeWidth;
     const gapTop = pipe.gapY;
-    const gapBottom = pipe.gapY + this.PIPE_GAP;
+    const gapBottom = pipe.gapY + this.pipeGap;
     
     // Check if tucano overlaps pipe horizontally
     if (tRight > pLeft && tLeft < pRight) {
@@ -151,6 +155,10 @@ export class Game {
     if (this.score > this.highScore) {
       this.highScore = this.score;
     }
+    this.scoreHistory.unshift({ name: this.playerName, animal: this.selectedAnimal, score: this.score });
+    this.scoreHistory = this.scoreHistory
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5);
   }
   
   setPlayerName(name: string): void {
@@ -170,10 +178,47 @@ export class Game {
     return this.selectedAnimal;
   }
 
+  setDifficulty(difficulty: Difficulty): void {
+    this.selectedDifficulty = difficulty;
+    if (difficulty === 'easy') {
+      this.gravity = 1360;
+      this.flapForce = -520;
+      this.pipeSpeed = 220;
+      this.pipeSpawnRate = 2.45;
+      this.pipeGap = 250;
+    } else if (difficulty === 'normal') {
+      this.gravity = 1450;
+      this.flapForce = -470;
+      this.pipeSpeed = 250;
+      this.pipeSpawnRate = 2.2;
+      this.pipeGap = 220;
+    } else {
+      this.gravity = 1560;
+      this.flapForce = -455;
+      this.pipeSpeed = 295;
+      this.pipeSpawnRate = 1.8;
+      this.pipeGap = 190;
+    }
+  }
+
+  getDifficulty(): Difficulty {
+    return this.selectedDifficulty;
+  }
+
+  getScoreHistory(): ScoreEntry[] {
+    return this.scoreHistory;
+  }
+
   flap(): void {
     if (this.state === GameState.PLAYING) {
-      this.tucano.vy = this.FLAP_FORCE;
-      this.spawnParticles(this.tucano.x - 20, this.tucano.y, '#FFFFFF', 5);
+      this.tucano.vy = this.flapForce;
+      const trailColors: Record<AnimalSprite, string> = {
+        tucano: '#FFFFFF',
+        arara: '#FF3D00',
+        capivara: '#A1887F',
+        jaguar: '#FFDF00',
+      };
+      this.spawnParticles(this.tucano.x - 20, this.tucano.y, trailColors[this.selectedAnimal], 7);
     } else if (this.state === GameState.MENU || this.state === GameState.GAME_OVER) {
       this.reset();
       this.state = GameState.PLAYING;
@@ -202,9 +247,9 @@ export class Game {
     this.ctx.fillStyle = sky;
     this.ctx.fillRect(0, 0, this.width, this.height);
 
-    const farOffset = (time * this.PIPE_SPEED * 0.1) % this.width;
-    const midOffset = (time * this.PIPE_SPEED * 0.3) % this.width;
-    const cloudOffset = (time * this.PIPE_SPEED * 0.5) % (this.width + 220);
+    const farOffset = (time * this.pipeSpeed * 0.1) % this.width;
+    const midOffset = (time * this.pipeSpeed * 0.3) % this.width;
+    const cloudOffset = (time * this.pipeSpeed * 0.5) % (this.width + 220);
 
     // Sun glow behind the skyline.
     const sunGlow = this.ctx.createRadialGradient(this.width * 0.72, groundY * 0.58, 10, this.width * 0.72, groundY * 0.58, 180);
@@ -285,16 +330,16 @@ export class Game {
 
     // Pipes.
     for (const pipe of this.pipes) {
-      const bottomPipeY = pipe.gapY + this.PIPE_GAP;
+      const bottomPipeY = pipe.gapY + this.pipeGap;
       const bottomPipeHeight = this.height - bottomPipeY - 50;
 
       this.ctx.fillStyle = '#009C3B';
-      this.ctx.fillRect(pipe.x, 0, this.PIPE_WIDTH, pipe.gapY);
-      this.ctx.fillRect(pipe.x, bottomPipeY, this.PIPE_WIDTH, bottomPipeHeight);
+      this.ctx.fillRect(pipe.x, 0, this.pipeWidth, pipe.gapY);
+      this.ctx.fillRect(pipe.x, bottomPipeY, this.pipeWidth, bottomPipeHeight);
 
       this.ctx.fillStyle = '#FFDF00';
-      this.ctx.fillRect(pipe.x + 6, pipe.gapY * 0.48, this.PIPE_WIDTH - 12, 12);
-      this.ctx.fillRect(pipe.x + 6, bottomPipeY + bottomPipeHeight * 0.2, this.PIPE_WIDTH - 12, 12);
+      this.ctx.fillRect(pipe.x + 6, pipe.gapY * 0.48, this.pipeWidth - 12, 12);
+      this.ctx.fillRect(pipe.x + 6, bottomPipeY + bottomPipeHeight * 0.2, this.pipeWidth - 12, 12);
 
       this.ctx.fillStyle = 'rgba(255, 255, 255, 0.18)';
       this.ctx.fillRect(pipe.x + 8, 0, 10, pipe.gapY);
@@ -302,13 +347,20 @@ export class Game {
 
       this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
       this.ctx.lineWidth = 3;
-      this.ctx.strokeRect(pipe.x, 0, this.PIPE_WIDTH, pipe.gapY);
-      this.ctx.strokeRect(pipe.x, bottomPipeY, this.PIPE_WIDTH, bottomPipeHeight);
+      this.ctx.strokeRect(pipe.x, 0, this.pipeWidth, pipe.gapY);
+      this.ctx.strokeRect(pipe.x, bottomPipeY, this.pipeWidth, bottomPipeHeight);
     }
 
     // Feather trail while rising.
     if (this.tucano.vy < -50) {
       const featherCount = 4;
+      const trailMap: Record<AnimalSprite, string[]> = {
+        tucano: ['#FFFFFF'],
+        arara: ['#1565C0', '#FF3D00'],
+        capivara: ['#A1887F', '#7CB342'],
+        jaguar: ['#FFDF00', '#F9A825'],
+      };
+      const trailColors = trailMap[this.selectedAnimal];
       for (let i = 0; i < featherCount; i++) {
         const featherX = this.tucano.x - 10 - i * 11;
         const featherY = this.tucano.y + 6 + Math.sin(time * 10 + i) * 4;
@@ -316,11 +368,20 @@ export class Game {
         this.ctx.translate(featherX, featherY);
         this.ctx.rotate(-0.55 + i * 0.12);
         this.ctx.globalAlpha = 0.22 - i * 0.04;
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.beginPath();
-        this.ctx.moveTo(-6, 0);
-        this.ctx.quadraticCurveTo(0, -5, 7, 0);
-        this.ctx.quadraticCurveTo(0, 4, -6, 0);
+        this.ctx.fillStyle = trailColors[i % trailColors.length];
+        if (this.selectedAnimal === 'capivara') {
+          this.ctx.beginPath();
+          this.ctx.moveTo(-6, 2);
+          this.ctx.lineTo(0, -6);
+          this.ctx.lineTo(7, 1);
+          this.ctx.lineTo(0, 6);
+          this.ctx.closePath();
+        } else {
+          this.ctx.beginPath();
+          this.ctx.moveTo(-6, 0);
+          this.ctx.quadraticCurveTo(0, -5, 7, 0);
+          this.ctx.quadraticCurveTo(0, 4, -6, 0);
+        }
         this.ctx.fill();
         this.ctx.restore();
       }
@@ -512,7 +573,7 @@ export class Game {
       this.ctx.font = '32px Courier New, monospace';
       this.ctx.fillStyle = '#fff';
       this.ctx.fillText(`Ready, ${this.playerName}`, this.width/2, this.height/2 + 10);
-      this.ctx.fillText(`Animal: ${this.selectedAnimal.toUpperCase()}`, this.width/2, this.height/2 + 58);
+      this.ctx.fillText(`Animal: ${this.selectedAnimal.toUpperCase()} • ${this.selectedDifficulty.toUpperCase()}`, this.width/2, this.height/2 + 58);
       this.ctx.fillText('Press OK/Enter to Start', this.width/2, this.height/2 + 106);
     } else if (this.state === GameState.GAME_OVER) {
       this.ctx.fillStyle = '#ff6b6b';
@@ -524,6 +585,18 @@ export class Game {
     } else if (this.state === GameState.PAUSED) {
       this.ctx.fillStyle = '#ffd93d';
       this.ctx.fillText('PAUSED', this.width/2, this.height/2);
+    }
+
+    const leaders = this.scoreHistory.slice(0, 3);
+    if (leaders.length > 0) {
+      this.ctx.textAlign = 'right';
+      this.ctx.fillStyle = 'rgba(255,255,255,0.92)';
+      this.ctx.font = 'bold 26px Courier New, monospace';
+      this.ctx.fillText('Top Flyers', this.width - 32, 56);
+      this.ctx.font = '22px Courier New, monospace';
+      leaders.forEach((entry, index) => {
+        this.ctx.fillText(`${index + 1}. ${entry.name} ${entry.animal} ${entry.score}`, this.width - 32, 92 + index * 28);
+      });
     }
   }
 }
