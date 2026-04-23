@@ -9,6 +9,11 @@ declare global {
 }
 
 const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
+const landing = document.getElementById('landing-screen') as HTMLDivElement | null;
+const nameInput = document.getElementById('player-name') as HTMLInputElement | null;
+const startButton = document.getElementById('start-game') as HTMLButtonElement | null;
+const menuName = document.getElementById('menu-name') as HTMLSpanElement | null;
+
 if (!canvas) {
   throw new Error('Canvas not found');
 }
@@ -34,6 +39,32 @@ ctx.scale(dpr, dpr);
 // Initialize game
 const game = new Game(ctx, targetWidth, targetHeight);
 
+if (nameInput) {
+  nameInput.value = game.getPlayerName();
+}
+if (menuName) {
+  menuName.textContent = game.getPlayerName();
+}
+
+function syncPlayerName(): void {
+  const nextName = nameInput?.value || 'Nono Caldas';
+  game.setPlayerName(nextName);
+  if (nameInput) {
+    nameInput.value = game.getPlayerName();
+  }
+  if (menuName) {
+    menuName.textContent = game.getPlayerName();
+  }
+}
+
+function hideLanding(): void {
+  syncPlayerName();
+  if (landing) {
+    landing.classList.add('hidden');
+  }
+  canvas.focus();
+}
+
 // Samsung TV remote support
 // Standard key codes for TV browsers
 const TV_KEYS = {
@@ -53,6 +84,14 @@ const TV_KEYS = {
 // Input handling
 function handleInput(e: KeyboardEvent): void {
   const keyCode = e.keyCode || e.which;
+
+  if (landing && !landing.classList.contains('hidden')) {
+    if (keyCode === TV_KEYS.OK || keyCode === 13) {
+      hideLanding();
+      e.preventDefault();
+    }
+    return;
+  }
   
   switch (keyCode) {
     case TV_KEYS.OK:
@@ -78,12 +117,25 @@ function handleInput(e: KeyboardEvent): void {
 
 // Also support pointer/touch for testing
 function handlePointer(_e: PointerEvent): void {
+  if (landing && !landing.classList.contains('hidden')) {
+    hideLanding();
+    return;
+  }
   game.flap();
 }
 
 // Event listeners
 window.addEventListener('keydown', handleInput);
 canvas.addEventListener('pointerdown', handlePointer);
+
+nameInput?.addEventListener('input', syncPlayerName);
+nameInput?.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    hideLanding();
+    e.preventDefault();
+  }
+});
+startButton?.addEventListener('click', hideLanding);
 
 // Prevent default browser zoom/pan
 document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });

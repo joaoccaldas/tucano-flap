@@ -8,6 +8,7 @@ export class Game {
   private lastTime: number = 0;
   private score: number = 0;
   private highScore: number = 0;
+  private playerName: string = 'Nono Caldas';
   
   // Entities
   private tucano!: { x: number; y: number; vy: number; width: number; height: number; rotation: number };
@@ -149,6 +150,15 @@ export class Game {
     }
   }
   
+  setPlayerName(name: string): void {
+    const trimmed = name.trim();
+    this.playerName = trimmed.length > 0 ? trimmed : 'Nono Caldas';
+  }
+
+  getPlayerName(): string {
+    return this.playerName;
+  }
+
   flap(): void {
     if (this.state === GameState.PLAYING) {
       this.tucano.vy = this.FLAP_FORCE;
@@ -422,6 +432,9 @@ export class Game {
     this.ctx.fillStyle = '#fffdf5';
     this.ctx.font = 'bold 60px Courier New, monospace';
     this.ctx.fillText(`Score: ${this.score}`, 20, 70);
+    this.ctx.font = 'bold 30px Courier New, monospace';
+    this.ctx.fillStyle = 'rgba(255, 253, 245, 0.92)';
+    this.ctx.fillText(`Player: ${this.playerName}`, 22, 112);
     this.ctx.shadowColor = 'transparent';
     this.ctx.shadowOffsetX = 0;
     this.ctx.shadowOffsetY = 0;
@@ -435,13 +448,14 @@ export class Game {
       this.ctx.fillText('TUCANO FLAP 🇧🇷', this.width/2, this.height/2 - 50);
       this.ctx.font = '32px Courier New, monospace';
       this.ctx.fillStyle = '#fff';
-      this.ctx.fillText('Press OK/Enter to Start', this.width/2, this.height/2 + 50);
+      this.ctx.fillText(`Ready, ${this.playerName}`, this.width/2, this.height/2 + 10);
+      this.ctx.fillText('Press OK/Enter to Start', this.width/2, this.height/2 + 62);
     } else if (this.state === GameState.GAME_OVER) {
       this.ctx.fillStyle = '#ff6b6b';
       this.ctx.fillText('GAME OVER', this.width/2, this.height/2 - 50);
       this.ctx.font = '32px Courier New, monospace';
       this.ctx.fillStyle = '#fff';
-      this.ctx.fillText(`Score: ${this.score}  High: ${this.highScore}`, this.width/2, this.height/2 + 20);
+      this.ctx.fillText(`${this.playerName}, score: ${this.score}  High: ${this.highScore}`, this.width/2, this.height/2 + 20);
       this.ctx.fillText('Press OK/Enter to Restart', this.width/2, this.height/2 + 80);
     } else if (this.state === GameState.PAUSED) {
       this.ctx.fillStyle = '#ffd93d';
