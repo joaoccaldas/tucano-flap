@@ -13,6 +13,8 @@ const landing = document.getElementById('landing-screen') as HTMLDivElement | nu
 const nameInput = document.getElementById('player-name') as HTMLInputElement | null;
 const startButton = document.getElementById('start-game') as HTMLButtonElement | null;
 const menuName = document.getElementById('menu-name') as HTMLSpanElement | null;
+const animalSelect = document.getElementById('animal-select') as HTMLSelectElement | null;
+const menuAnimal = document.getElementById('menu-animal') as HTMLSpanElement | null;
 
 if (!canvas) {
   throw new Error('Canvas not found');
@@ -45,20 +47,30 @@ if (nameInput) {
 if (menuName) {
   menuName.textContent = game.getPlayerName();
 }
+if (animalSelect) {
+  animalSelect.value = game.getAnimal();
+}
+if (menuAnimal) {
+  menuAnimal.textContent = game.getAnimal();
+}
 
-function syncPlayerName(): void {
+function syncMenu(): void {
   const nextName = nameInput?.value || 'Nono Caldas';
   game.setPlayerName(nextName);
+  game.setAnimal((animalSelect?.value as 'tucano' | 'arara' | 'capivara' | 'jaguar') || 'tucano');
   if (nameInput) {
     nameInput.value = game.getPlayerName();
   }
   if (menuName) {
     menuName.textContent = game.getPlayerName();
   }
+  if (menuAnimal) {
+    menuAnimal.textContent = game.getAnimal();
+  }
 }
 
 function hideLanding(): void {
-  syncPlayerName();
+  syncMenu();
   if (landing) {
     landing.classList.add('hidden');
   }
@@ -128,7 +140,8 @@ function handlePointer(_e: PointerEvent): void {
 window.addEventListener('keydown', handleInput);
 canvas.addEventListener('pointerdown', handlePointer);
 
-nameInput?.addEventListener('input', syncPlayerName);
+nameInput?.addEventListener('input', syncMenu);
+animalSelect?.addEventListener('change', syncMenu);
 nameInput?.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     hideLanding();

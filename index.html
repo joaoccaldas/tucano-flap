@@ -67,6 +67,17 @@
     }
     .menu-note { font-size: 16px; color: rgba(255,255,255,0.75); }
     .menu-player { color: #ffe66d; }
+    .menu-select {
+      width: 100%;
+      padding: 18px 20px;
+      border-radius: 16px;
+      border: 2px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.1);
+      color: white;
+      font-size: 22px;
+      font-family: inherit;
+      margin-bottom: 22px;
+    }
   </style>
   <script type="module" crossorigin src="./bundle.js"></script>
 </head>
@@ -75,9 +86,16 @@
     <div id="landing-screen">
       <div class="menu-card">
         <div class="menu-title">TUCANO FLAP 🇧🇷</div>
-        <div class="menu-subtitle">A colorful Brazil-themed landing page for TV and mobile. Choose your player name, then start the flight. Current hero: <span id="menu-name" class="menu-player">Nono Caldas</span>.</div>
+        <div class="menu-subtitle">A colorful Brazil-themed landing page for TV and mobile. Choose your player name and your Brazil animal hero, then start the flight. Current hero: <span id="menu-name" class="menu-player">Nono Caldas</span> with <span id="menu-animal" class="menu-player">tucano</span>.</div>
         <label class="menu-label" for="player-name">Player name</label>
         <input id="player-name" class="menu-input" type="text" maxlength="24" value="Nono Caldas" autocomplete="off" />
+        <label class="menu-label" for="animal-select">Animal sprite</label>
+        <select id="animal-select" class="menu-select">
+          <option value="tucano">Tucano</option>
+          <option value="arara">Arara</option>
+          <option value="capivara">Capivara</option>
+          <option value="jaguar">Jaguar</option>
+        </select>
         <div class="menu-row">
           <button id="start-game" class="menu-button">Start game</button>
           <div class="menu-note">Press Enter / OK on TV remote to continue</div>

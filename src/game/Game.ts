@@ -1,5 +1,7 @@
 export enum GameState { MENU, PLAYING, PAUSED, GAME_OVER }
 
+type AnimalSprite = 'tucano' | 'arara' | 'capivara' | 'jaguar';
+
 export class Game {
   private ctx: CanvasRenderingContext2D;
   private width: number;
@@ -9,6 +11,7 @@ export class Game {
   private score: number = 0;
   private highScore: number = 0;
   private playerName: string = 'Nono Caldas';
+  private selectedAnimal: AnimalSprite = 'tucano';
   
   // Entities
   private tucano!: { x: number; y: number; vy: number; width: number; height: number; rotation: number };
@@ -16,8 +19,8 @@ export class Game {
   private particles!: Array<{ x: number; y: number; vx: number; vy: number; life: number; color: string }>;
   
   // Constants
-  private readonly GRAVITY = 1500;
-  private readonly FLAP_FORCE = -400;
+  private readonly GRAVITY = 1450;
+  private readonly FLAP_FORCE = -470;
   private readonly PIPE_SPEED = 250;
   private readonly PIPE_SPAWN_RATE = 2.0;
   private readonly PIPE_WIDTH = 80;
@@ -157,6 +160,14 @@ export class Game {
 
   getPlayerName(): string {
     return this.playerName;
+  }
+
+  setAnimal(animal: AnimalSprite): void {
+    this.selectedAnimal = animal;
+  }
+
+  getAnimal(): AnimalSprite {
+    return this.selectedAnimal;
   }
 
   flap(): void {
@@ -316,67 +327,127 @@ export class Game {
       this.ctx.globalAlpha = 1;
     }
 
-    // Tucano.
+    // Animal sprite.
     this.ctx.save();
     this.ctx.translate(this.tucano.x, this.tucano.y);
     this.ctx.rotate(this.tucano.rotation);
 
     const wingAngle = Math.sin(time * 18) * 0.35 - Math.min(this.tucano.vy / 900, 0.15);
 
-    this.ctx.fillStyle = '#111';
-    this.ctx.beginPath();
-    this.ctx.ellipse(-2, 0, 21, 16, -0.1, 0, Math.PI * 2);
-    this.ctx.fill();
-
-    this.ctx.beginPath();
-    this.ctx.ellipse(-18, -1, 11, 10, -0.2, 0, Math.PI * 2);
-    this.ctx.fill();
-
-    this.ctx.save();
-    this.ctx.translate(-4, 2);
-    this.ctx.rotate(wingAngle);
-    this.ctx.fillStyle = '#1C1C1C';
-    this.ctx.beginPath();
-    this.ctx.moveTo(-4, -1);
-    this.ctx.quadraticCurveTo(-18, 8, -12, 20);
-    this.ctx.quadraticCurveTo(4, 13, 9, 2);
-    this.ctx.closePath();
-    this.ctx.fill();
-    this.ctx.restore();
-
-    this.ctx.fillStyle = '#F8F8F2';
-    this.ctx.beginPath();
-    this.ctx.moveTo(-16, -2);
-    this.ctx.quadraticCurveTo(-4, 4, -8, 15);
-    this.ctx.quadraticCurveTo(-19, 9, -16, -2);
-    this.ctx.fill();
-
-    const beakGrad = this.ctx.createLinearGradient(6, -8, 38, 10);
-    beakGrad.addColorStop(0, '#FFE66D');
-    beakGrad.addColorStop(0.6, '#FF9F1C');
-    beakGrad.addColorStop(1, '#F77F00');
-    this.ctx.fillStyle = beakGrad;
-    this.ctx.beginPath();
-    this.ctx.moveTo(4, -8);
-    this.ctx.quadraticCurveTo(30, -16, 38, -3);
-    this.ctx.quadraticCurveTo(22, 0, 7, 3);
-    this.ctx.closePath();
-    this.ctx.fill();
-
-    this.ctx.fillStyle = '#111';
-    this.ctx.beginPath();
-    this.ctx.moveTo(28, -9);
-    this.ctx.quadraticCurveTo(40, -7, 36, 1);
-    this.ctx.quadraticCurveTo(28, -1, 26, -5);
-    this.ctx.closePath();
-    this.ctx.fill();
-
-    this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.35)';
-    this.ctx.lineWidth = 1.5;
-    this.ctx.beginPath();
-    this.ctx.moveTo(7, -1);
-    this.ctx.quadraticCurveTo(22, 0, 34, -2);
-    this.ctx.stroke();
+    if (this.selectedAnimal === 'tucano') {
+      this.ctx.fillStyle = '#111';
+      this.ctx.beginPath();
+      this.ctx.ellipse(-2, 0, 21, 16, -0.1, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.beginPath();
+      this.ctx.ellipse(-18, -1, 11, 10, -0.2, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.save();
+      this.ctx.translate(-4, 2);
+      this.ctx.rotate(wingAngle);
+      this.ctx.fillStyle = '#1C1C1C';
+      this.ctx.beginPath();
+      this.ctx.moveTo(-4, -1);
+      this.ctx.quadraticCurveTo(-18, 8, -12, 20);
+      this.ctx.quadraticCurveTo(4, 13, 9, 2);
+      this.ctx.closePath();
+      this.ctx.fill();
+      this.ctx.restore();
+      this.ctx.fillStyle = '#F8F8F2';
+      this.ctx.beginPath();
+      this.ctx.moveTo(-16, -2);
+      this.ctx.quadraticCurveTo(-4, 4, -8, 15);
+      this.ctx.quadraticCurveTo(-19, 9, -16, -2);
+      this.ctx.fill();
+      const beakGrad = this.ctx.createLinearGradient(6, -8, 38, 10);
+      beakGrad.addColorStop(0, '#FFE66D');
+      beakGrad.addColorStop(0.6, '#FF9F1C');
+      beakGrad.addColorStop(1, '#F77F00');
+      this.ctx.fillStyle = beakGrad;
+      this.ctx.beginPath();
+      this.ctx.moveTo(4, -8);
+      this.ctx.quadraticCurveTo(30, -16, 38, -3);
+      this.ctx.quadraticCurveTo(22, 0, 7, 3);
+      this.ctx.closePath();
+      this.ctx.fill();
+      this.ctx.fillStyle = '#111';
+      this.ctx.beginPath();
+      this.ctx.moveTo(28, -9);
+      this.ctx.quadraticCurveTo(40, -7, 36, 1);
+      this.ctx.quadraticCurveTo(28, -1, 26, -5);
+      this.ctx.closePath();
+      this.ctx.fill();
+    } else if (this.selectedAnimal === 'arara') {
+      this.ctx.fillStyle = '#1565C0';
+      this.ctx.beginPath();
+      this.ctx.ellipse(-4, 0, 22, 17, 0, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.fillStyle = '#FF3D00';
+      this.ctx.beginPath();
+      this.ctx.ellipse(-18, -2, 10, 10, 0, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.save();
+      this.ctx.translate(-2, 3);
+      this.ctx.rotate(wingAngle);
+      this.ctx.fillStyle = '#0D47A1';
+      this.ctx.beginPath();
+      this.ctx.moveTo(-2, 0);
+      this.ctx.quadraticCurveTo(-18, 10, -10, 22);
+      this.ctx.quadraticCurveTo(6, 14, 12, 1);
+      this.ctx.closePath();
+      this.ctx.fill();
+      this.ctx.restore();
+      this.ctx.fillStyle = '#FFD54F';
+      this.ctx.beginPath();
+      this.ctx.moveTo(6, -5);
+      this.ctx.quadraticCurveTo(24, -11, 28, -1);
+      this.ctx.quadraticCurveTo(18, 2, 7, 4);
+      this.ctx.closePath();
+      this.ctx.fill();
+    } else if (this.selectedAnimal === 'capivara') {
+      this.ctx.fillStyle = '#8D6E63';
+      this.ctx.beginPath();
+      this.ctx.ellipse(-4, 2, 24, 15, 0.05, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.beginPath();
+      this.ctx.ellipse(-20, -2, 12, 10, -0.1, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.fillStyle = '#6D4C41';
+      this.ctx.fillRect(-25, 9, 8, 8);
+      this.ctx.fillRect(-10, 10, 8, 8);
+      this.ctx.fillRect(6, 10, 8, 8);
+      this.ctx.save();
+      this.ctx.translate(-1, 1);
+      this.ctx.rotate(wingAngle * 0.3);
+      this.ctx.fillStyle = '#A1887F';
+      this.ctx.beginPath();
+      this.ctx.ellipse(2, 0, 10, 7, 0.1, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.restore();
+    } else {
+      this.ctx.fillStyle = '#F9A825';
+      this.ctx.beginPath();
+      this.ctx.ellipse(-4, 0, 22, 14, -0.05, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.fillStyle = '#6D4C41';
+      this.ctx.beginPath();
+      this.ctx.ellipse(-18, -2, 11, 10, 0, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.save();
+      this.ctx.translate(-2, 2);
+      this.ctx.rotate(wingAngle * 0.75);
+      this.ctx.fillStyle = '#5D4037';
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, -2);
+      this.ctx.quadraticCurveTo(-16, 10, -7, 22);
+      this.ctx.quadraticCurveTo(10, 12, 12, 1);
+      this.ctx.closePath();
+      this.ctx.fill();
+      this.ctx.restore();
+      this.ctx.fillStyle = '#212121';
+      this.ctx.fillRect(10, -6, 10, 3);
+      this.ctx.fillRect(12, -1, 8, 3);
+    }
 
     this.ctx.fillStyle = '#2ECC71';
     this.ctx.beginPath();
@@ -389,14 +460,6 @@ export class Game {
     this.ctx.fillStyle = '#111';
     this.ctx.beginPath();
     this.ctx.arc(-14.5, -5, 1.5, 0, Math.PI * 2);
-    this.ctx.fill();
-
-    this.ctx.fillStyle = '#111';
-    this.ctx.beginPath();
-    this.ctx.moveTo(-24, 2);
-    this.ctx.quadraticCurveTo(-34, 9, -29, 16);
-    this.ctx.quadraticCurveTo(-20, 12, -16, 7);
-    this.ctx.closePath();
     this.ctx.fill();
 
     this.ctx.restore();
@@ -449,7 +512,8 @@ export class Game {
       this.ctx.font = '32px Courier New, monospace';
       this.ctx.fillStyle = '#fff';
       this.ctx.fillText(`Ready, ${this.playerName}`, this.width/2, this.height/2 + 10);
-      this.ctx.fillText('Press OK/Enter to Start', this.width/2, this.height/2 + 62);
+      this.ctx.fillText(`Animal: ${this.selectedAnimal.toUpperCase()}`, this.width/2, this.height/2 + 58);
+      this.ctx.fillText('Press OK/Enter to Start', this.width/2, this.height/2 + 106);
     } else if (this.state === GameState.GAME_OVER) {
       this.ctx.fillStyle = '#ff6b6b';
       this.ctx.fillText('GAME OVER', this.width/2, this.height/2 - 50);
