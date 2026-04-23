@@ -3,6 +3,7 @@ export enum GameState { MENU, PLAYING, PAUSED, GAME_OVER }
 type AnimalSprite = 'tucano' | 'arara' | 'capivara' | 'jaguar';
 type Difficulty = 'easy' | 'normal' | 'chaos';
 type ScoreEntry = { name: string; animal: AnimalSprite; score: number };
+type Portal = { x: number; y: number; radius: number; active: boolean };
 
 export class Game {
   private ctx: CanvasRenderingContext2D;
@@ -16,11 +17,15 @@ export class Game {
   private selectedAnimal: AnimalSprite = 'tucano';
   private selectedDifficulty: Difficulty = 'easy';
   private scoreHistory: ScoreEntry[] = [];
+  private worldMode: 'tucano' | 'blocks' = 'tucano';
+  private worldShiftTimer: number = 0;
+  private nextPortalScore: number = 3;
   
   // Entities
   private tucano!: { x: number; y: number; vy: number; width: number; height: number; rotation: number };
   private pipes!: Array<{ x: number; gapY: number; passed: boolean }>;
   private particles!: Array<{ x: number; y: number; vx: number; vy: number; life: number; color: string }>;
+  private portals!: Portal[];
   
   // Constants
   private gravity = 1450;
@@ -44,6 +49,10 @@ export class Game {
     this.particles = [];
     this.score = 0;
     this.pipeTimer = 0;
+    this.portals = [];
+    this.worldMode = 'tucano';
+    this.worldShiftTimer = 0;
+    this.nextPortalScore = 3;
   }
   
   start(): void {
@@ -74,6 +83,14 @@ export class Game {
       return;
     }
     
+    if (this.worldMode === 'blocks') {
+      this.worldShiftTimer -= dt;
+      if (this.worldShiftTimer <= 0) {
+        this.worldMode = 'tucano';
+        this.portals.push({ x: this.width + 120, y: this.height * 0.42, radius: 54, active: true });
+      }
+    }
+
     // Pipes
     this.pipeTimer += dt;
     if (this.pipeTimer >= this.pipeSpawnRate) {
@@ -95,11 +112,31 @@ export class Game {
         pipe.passed = true;
         this.score++;
         this.spawnParticles(this.tucano.x, this.tucano.y, '#FFD700', 10);
+        if (this.score >= this.nextPortalScore && this.worldMode === 'tucano' && !this.portals.some((portal) => portal.active)) {
+          this.portals.push({ x: this.width + 120, y: this.height * (0.28 + Math.random() * 0.3), radius: 52, active: true });
+          this.nextPortalScore += 4;
+        }
       }
     }
     
     // Remove off-screen pipes
     this.pipes = this.pipes.filter(p => p.x > -this.pipeWidth);
+    this.portals = this.portals.filter((portal) => portal.x > -portal.radius * 2 && portal.active);
+    for (const portal of this.portals) {
+      portal.x -= this.pipeSpeed * dt;
+      const dx = this.tucano.x - portal.x;
+      const dy = this.tucano.y - portal.y;
+      if (dx * dx + dy * dy < (portal.radius + 16) * (portal.radius + 16)) {
+        portal.active = false;
+        this.spawnParticles(portal.x, portal.y, '#9B5DE5', 20);
+        if (this.worldMode === 'tucano') {
+          this.worldMode = 'blocks';
+          this.worldShiftTimer = 6.5;
+        } else {
+          this.worldMode = 'tucano';
+        }
+      }
+    }
     
     // Particles
     for (const p of this.particles) {
@@ -241,9 +278,15 @@ export class Game {
     const groundY = this.height - 50;
     const time = this.lastTime / 1000;
     const sky = this.ctx.createLinearGradient(0, 0, 0, groundY);
-    sky.addColorStop(0, '#FF6B6B');
-    sky.addColorStop(0.55, '#FECA57');
-    sky.addColorStop(1, '#48DBFB');
+    if (this.worldMode === 'blocks') {
+      sky.addColorStop(0, '#5E60CE');
+      sky.addColorStop(0.5, '#5390D9');
+      sky.addColorStop(1, '#80FFDB');
+    } else {
+      sky.addColorStop(0, '#FF6B6B');
+      sky.addColorStop(0.55, '#FECA57');
+      sky.addColorStop(1, '#48DBFB');
+    }
     this.ctx.fillStyle = sky;
     this.ctx.fillRect(0, 0, this.width, this.height);
 
@@ -259,44 +302,64 @@ export class Game {
     this.ctx.fillStyle = sunGlow;
     this.ctx.fillRect(0, 0, this.width, groundY);
 
-    // Far mountains.
-    this.ctx.fillStyle = '#2D1B4E';
-    for (let i = -1; i < 3; i++) {
-      const baseX = i * 320 - farOffset;
-      this.ctx.beginPath();
-      this.ctx.moveTo(baseX, groundY);
-      this.ctx.lineTo(baseX + 70, groundY - 55);
-      this.ctx.lineTo(baseX + 150, groundY - 18);
-      this.ctx.lineTo(baseX + 235, groundY - 85);
-      this.ctx.lineTo(baseX + 320, groundY);
-      this.ctx.closePath();
-      this.ctx.fill();
-    }
+    if (this.worldMode === 'blocks') {
+      this.ctx.fillStyle = '#6930C3';
+      for (let i = -1; i < 5; i++) {
+        const baseX = i * 180 - farOffset;
+        for (let h = 0; h < 4; h++) {
+          const size = 36;
+          this.ctx.fillRect(baseX + h * size, groundY - 70 - h * 24, size, size);
+          this.ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+          this.ctx.strokeRect(baseX + h * size, groundY - 70 - h * 24, size, size);
+        }
+      }
+      this.ctx.fillStyle = '#4EA8DE';
+      for (let i = -1; i < 4; i++) {
+        const baseX = i * 260 - midOffset;
+        this.ctx.fillRect(baseX + 20, groundY - 160, 48, 48);
+        this.ctx.fillRect(baseX + 68, groundY - 112, 48, 48);
+        this.ctx.fillRect(baseX + 116, groundY - 64, 48, 48);
+      }
+    } else {
+      // Far mountains.
+      this.ctx.fillStyle = '#2D1B4E';
+      for (let i = -1; i < 3; i++) {
+        const baseX = i * 320 - farOffset;
+        this.ctx.beginPath();
+        this.ctx.moveTo(baseX, groundY);
+        this.ctx.lineTo(baseX + 70, groundY - 55);
+        this.ctx.lineTo(baseX + 150, groundY - 18);
+        this.ctx.lineTo(baseX + 235, groundY - 85);
+        this.ctx.lineTo(baseX + 320, groundY);
+        this.ctx.closePath();
+        this.ctx.fill();
+      }
 
-    // Mid layer with Christ the Redeemer silhouettes.
-    this.ctx.fillStyle = '#1A3A5C';
-    for (let i = -1; i < 2; i++) {
-      const baseX = i * (this.width * 0.85) - midOffset;
-      this.ctx.beginPath();
-      this.ctx.moveTo(baseX, groundY);
-      this.ctx.quadraticCurveTo(baseX + 120, groundY - 60, baseX + 260, groundY);
-      this.ctx.lineTo(baseX, groundY);
-      this.ctx.fill();
+      // Mid layer with Christ the Redeemer silhouettes.
+      this.ctx.fillStyle = '#1A3A5C';
+      for (let i = -1; i < 2; i++) {
+        const baseX = i * (this.width * 0.85) - midOffset;
+        this.ctx.beginPath();
+        this.ctx.moveTo(baseX, groundY);
+        this.ctx.quadraticCurveTo(baseX + 120, groundY - 60, baseX + 260, groundY);
+        this.ctx.lineTo(baseX, groundY);
+        this.ctx.fill();
 
-      const statueX = baseX + 155;
-      const statueY = groundY - 88;
-      this.ctx.beginPath();
-      this.ctx.moveTo(statueX - 6, statueY + 42);
-      this.ctx.lineTo(statueX - 16, statueY + 82);
-      this.ctx.lineTo(statueX + 16, statueY + 82);
-      this.ctx.lineTo(statueX + 6, statueY + 42);
-      this.ctx.closePath();
-      this.ctx.fill();
-      this.ctx.fillRect(statueX - 7, statueY + 8, 14, 36);
-      this.ctx.fillRect(statueX - 44, statueY + 12, 88, 10);
-      this.ctx.beginPath();
-      this.ctx.arc(statueX, statueY, 10, 0, Math.PI * 2);
-      this.ctx.fill();
+        const statueX = baseX + 155;
+        const statueY = groundY - 88;
+        this.ctx.beginPath();
+        this.ctx.moveTo(statueX - 6, statueY + 42);
+        this.ctx.lineTo(statueX - 16, statueY + 82);
+        this.ctx.lineTo(statueX + 16, statueY + 82);
+        this.ctx.lineTo(statueX + 6, statueY + 42);
+        this.ctx.closePath();
+        this.ctx.fill();
+        this.ctx.fillRect(statueX - 7, statueY + 8, 14, 36);
+        this.ctx.fillRect(statueX - 44, statueY + 12, 88, 10);
+        this.ctx.beginPath();
+        this.ctx.arc(statueX, statueY, 10, 0, Math.PI * 2);
+        this.ctx.fill();
+      }
     }
 
     // Clouds.
@@ -313,9 +376,9 @@ export class Game {
     }
 
     // Ground.
-    this.ctx.fillStyle = '#2D5A3D';
+    this.ctx.fillStyle = this.worldMode === 'blocks' ? '#2B9348' : '#2D5A3D';
     this.ctx.fillRect(0, groundY, this.width, this.height - groundY);
-    this.ctx.fillStyle = '#57B86A';
+    this.ctx.fillStyle = this.worldMode === 'blocks' ? '#55A630' : '#57B86A';
     this.ctx.fillRect(0, groundY, this.width, 8);
     this.ctx.strokeStyle = 'rgba(123, 201, 111, 0.28)';
     this.ctx.lineWidth = 2;
@@ -328,16 +391,38 @@ export class Game {
       this.ctx.stroke();
     }
 
+    // Portals.
+    for (const portal of this.portals) {
+      const ringColor = this.worldMode === 'blocks' ? '#FF9F1C' : '#9B5DE5';
+      this.ctx.save();
+      this.ctx.translate(portal.x, portal.y);
+      this.ctx.strokeStyle = ringColor;
+      this.ctx.lineWidth = 8;
+      this.ctx.beginPath();
+      this.ctx.arc(0, 0, portal.radius, 0, Math.PI * 2);
+      this.ctx.stroke();
+      this.ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+      this.ctx.lineWidth = 3;
+      this.ctx.beginPath();
+      this.ctx.arc(0, 0, portal.radius - 12, 0, Math.PI * 2);
+      this.ctx.stroke();
+      for (let i = 0; i < 6; i++) {
+        this.ctx.fillStyle = i % 2 === 0 ? ringColor : '#ffffff';
+        this.ctx.fillRect(-10 + i * 4, -portal.radius + 10 + i * 12, 8, 8);
+      }
+      this.ctx.restore();
+    }
+
     // Pipes.
     for (const pipe of this.pipes) {
       const bottomPipeY = pipe.gapY + this.pipeGap;
       const bottomPipeHeight = this.height - bottomPipeY - 50;
 
-      this.ctx.fillStyle = '#009C3B';
+      this.ctx.fillStyle = this.worldMode === 'blocks' ? '#4CC9F0' : '#009C3B';
       this.ctx.fillRect(pipe.x, 0, this.pipeWidth, pipe.gapY);
       this.ctx.fillRect(pipe.x, bottomPipeY, this.pipeWidth, bottomPipeHeight);
 
-      this.ctx.fillStyle = '#FFDF00';
+      this.ctx.fillStyle = this.worldMode === 'blocks' ? '#90BE6D' : '#FFDF00';
       this.ctx.fillRect(pipe.x + 6, pipe.gapY * 0.48, this.pipeWidth - 12, 12);
       this.ctx.fillRect(pipe.x + 6, bottomPipeY + bottomPipeHeight * 0.2, this.pipeWidth - 12, 12);
 
@@ -559,6 +644,7 @@ export class Game {
     this.ctx.font = 'bold 30px Courier New, monospace';
     this.ctx.fillStyle = 'rgba(255, 253, 245, 0.92)';
     this.ctx.fillText(`Player: ${this.playerName}`, 22, 112);
+    this.ctx.fillText(`World: ${this.worldMode === 'blocks' ? 'BLOCKS CREATE WORLD' : 'TUCANO BRAZIL'}`, 22, 148);
     this.ctx.shadowColor = 'transparent';
     this.ctx.shadowOffsetX = 0;
     this.ctx.shadowOffsetY = 0;
@@ -567,6 +653,14 @@ export class Game {
     this.ctx.textAlign = 'center';
     this.ctx.font = 'bold 64px Courier New, monospace';
     
+    if (this.worldMode === 'blocks' && this.state === GameState.PLAYING) {
+      this.ctx.textAlign = 'center';
+      this.ctx.font = 'bold 28px Courier New, monospace';
+      this.ctx.fillStyle = '#ffffff';
+      this.ctx.fillText('BLOCKS CREATE WORLD RIFT', this.width / 2, 64);
+      this.ctx.fillText('Fly through the voxel crossover zone', this.width / 2, 98);
+    }
+
     if (this.state === GameState.MENU) {
       this.ctx.fillStyle = '#00ff88';
       this.ctx.fillText('TUCANO FLAP 🇧🇷', this.width/2, this.height/2 - 50);
