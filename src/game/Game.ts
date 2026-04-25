@@ -32,8 +32,8 @@ export class Game {
   private flapForce = -470;
   private pipeSpeed = 250;
   private pipeSpawnRate = 2.2;
-  private pipeWidth = 80;
-  private pipeGap = 220;
+  private pipeWidth = 120;  // Larger pipes
+  private pipeGap = 240;    // Slightly larger gap for bigger sprites
   private pipeTimer: number = 0;
   
   // Custom animal images
@@ -323,7 +323,9 @@ export class Game {
     const time = this.lastTime / 1000;
     
     // Scrolling panoramic background (Brazil coast)
-    if (this.bgImage && this.bgImage.complete && this.bgImage.naturalWidth > 0) {
+    const usePhotoBg = this.bgImage && this.bgImage.complete && this.bgImage.naturalWidth > 0;
+    
+    if (usePhotoBg && this.bgImage) {
       // Scroll background slowly - seamless loop
       this.bgOffset += this.pipeSpeed * 0.02;
       
@@ -361,89 +363,92 @@ export class Game {
       this.ctx.fillRect(0, 0, this.width, this.height);
     }
 
-    const farOffset = (time * this.pipeSpeed * 0.1) % this.width;
-    const midOffset = (time * this.pipeSpeed * 0.3) % this.width;
-    const cloudOffset = (time * this.pipeSpeed * 0.5) % (this.width + 220);
+    // Legacy background elements (only when NOT using photo background)
+    if (!usePhotoBg) {
+      const farOffset = (time * this.pipeSpeed * 0.1) % this.width;
+      const midOffset = (time * this.pipeSpeed * 0.3) % this.width;
+      const cloudOffset = (time * this.pipeSpeed * 0.5) % (this.width + 220);
 
-    // Sun glow behind the skyline.
-    const sunGlow = this.ctx.createRadialGradient(this.width * 0.72, groundY * 0.58, 10, this.width * 0.72, groundY * 0.58, 180);
-    sunGlow.addColorStop(0, 'rgba(255, 240, 180, 0.95)');
-    sunGlow.addColorStop(0.5, 'rgba(255, 205, 87, 0.35)');
-    sunGlow.addColorStop(1, 'rgba(255, 205, 87, 0)');
-    this.ctx.fillStyle = sunGlow;
-    this.ctx.fillRect(0, 0, this.width, groundY);
+      // Sun glow behind the skyline.
+      const sunGlow = this.ctx.createRadialGradient(this.width * 0.72, groundY * 0.58, 10, this.width * 0.72, groundY * 0.58, 180);
+      sunGlow.addColorStop(0, 'rgba(255, 240, 180, 0.95)');
+      sunGlow.addColorStop(0.5, 'rgba(255, 205, 87, 0.35)');
+      sunGlow.addColorStop(1, 'rgba(255, 205, 87, 0)');
+      this.ctx.fillStyle = sunGlow;
+      this.ctx.fillRect(0, 0, this.width, groundY);
 
-    if (this.worldMode === 'blocks') {
-      this.ctx.fillStyle = '#6930C3';
-      for (let i = -1; i < 5; i++) {
-        const baseX = i * 180 - farOffset;
-        for (let h = 0; h < 4; h++) {
-          const size = 36;
-          this.ctx.fillRect(baseX + h * size, groundY - 70 - h * 24, size, size);
-          this.ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-          this.ctx.strokeRect(baseX + h * size, groundY - 70 - h * 24, size, size);
+      if (this.worldMode === 'blocks') {
+        this.ctx.fillStyle = '#6930C3';
+        for (let i = -1; i < 5; i++) {
+          const baseX = i * 180 - farOffset;
+          for (let h = 0; h < 4; h++) {
+            const size = 36;
+            this.ctx.fillRect(baseX + h * size, groundY - 70 - h * 24, size, size);
+            this.ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+            this.ctx.strokeRect(baseX + h * size, groundY - 70 - h * 24, size, size);
+          }
+        }
+        this.ctx.fillStyle = '#4EA8DE';
+        for (let i = -1; i < 4; i++) {
+          const baseX = i * 260 - midOffset;
+          this.ctx.fillRect(baseX + 20, groundY - 160, 48, 48);
+          this.ctx.fillRect(baseX + 68, groundY - 112, 48, 48);
+          this.ctx.fillRect(baseX + 116, groundY - 64, 48, 48);
+        }
+      } else {
+        // Far mountains.
+        this.ctx.fillStyle = '#2D1B4E';
+        for (let i = -1; i < 3; i++) {
+          const baseX = i * 320 - farOffset;
+          this.ctx.beginPath();
+          this.ctx.moveTo(baseX, groundY);
+          this.ctx.lineTo(baseX + 70, groundY - 55);
+          this.ctx.lineTo(baseX + 150, groundY - 18);
+          this.ctx.lineTo(baseX + 235, groundY - 85);
+          this.ctx.lineTo(baseX + 320, groundY);
+          this.ctx.closePath();
+          this.ctx.fill();
+        }
+
+        // Mid layer with Christ the Redeemer silhouettes.
+        this.ctx.fillStyle = '#1A3A5C';
+        for (let i = -1; i < 2; i++) {
+          const baseX = i * (this.width * 0.85) - midOffset;
+          this.ctx.beginPath();
+          this.ctx.moveTo(baseX, groundY);
+          this.ctx.quadraticCurveTo(baseX + 120, groundY - 60, baseX + 260, groundY);
+          this.ctx.lineTo(baseX, groundY);
+          this.ctx.fill();
+
+          const statueX = baseX + 155;
+          const statueY = groundY - 88;
+          this.ctx.beginPath();
+          this.ctx.moveTo(statueX - 6, statueY + 42);
+          this.ctx.lineTo(statueX - 16, statueY + 82);
+          this.ctx.lineTo(statueX + 16, statueY + 82);
+          this.ctx.lineTo(statueX + 6, statueY + 42);
+          this.ctx.closePath();
+          this.ctx.fill();
+          this.ctx.fillRect(statueX - 7, statueY + 8, 14, 36);
+          this.ctx.fillRect(statueX - 44, statueY + 12, 88, 10);
+          this.ctx.beginPath();
+          this.ctx.arc(statueX, statueY, 10, 0, Math.PI * 2);
+          this.ctx.fill();
         }
       }
-      this.ctx.fillStyle = '#4EA8DE';
-      for (let i = -1; i < 4; i++) {
-        const baseX = i * 260 - midOffset;
-        this.ctx.fillRect(baseX + 20, groundY - 160, 48, 48);
-        this.ctx.fillRect(baseX + 68, groundY - 112, 48, 48);
-        this.ctx.fillRect(baseX + 116, groundY - 64, 48, 48);
-      }
-    } else {
-      // Far mountains.
-      this.ctx.fillStyle = '#2D1B4E';
-      for (let i = -1; i < 3; i++) {
-        const baseX = i * 320 - farOffset;
+
+      // Clouds.
+      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.24)';
+      for (let i = -1; i < 5; i++) {
+        const x = i * 210 - cloudOffset;
+        const y = 70 + (i % 3) * 55;
         this.ctx.beginPath();
-        this.ctx.moveTo(baseX, groundY);
-        this.ctx.lineTo(baseX + 70, groundY - 55);
-        this.ctx.lineTo(baseX + 150, groundY - 18);
-        this.ctx.lineTo(baseX + 235, groundY - 85);
-        this.ctx.lineTo(baseX + 320, groundY);
-        this.ctx.closePath();
+        this.ctx.arc(x + 36, y, 24, 0, Math.PI * 2);
+        this.ctx.arc(x + 60, y - 10, 30, 0, Math.PI * 2);
+        this.ctx.arc(x + 92, y, 22, 0, Math.PI * 2);
+        this.ctx.arc(x + 66, y + 12, 26, 0, Math.PI * 2);
         this.ctx.fill();
       }
-
-      // Mid layer with Christ the Redeemer silhouettes.
-      this.ctx.fillStyle = '#1A3A5C';
-      for (let i = -1; i < 2; i++) {
-        const baseX = i * (this.width * 0.85) - midOffset;
-        this.ctx.beginPath();
-        this.ctx.moveTo(baseX, groundY);
-        this.ctx.quadraticCurveTo(baseX + 120, groundY - 60, baseX + 260, groundY);
-        this.ctx.lineTo(baseX, groundY);
-        this.ctx.fill();
-
-        const statueX = baseX + 155;
-        const statueY = groundY - 88;
-        this.ctx.beginPath();
-        this.ctx.moveTo(statueX - 6, statueY + 42);
-        this.ctx.lineTo(statueX - 16, statueY + 82);
-        this.ctx.lineTo(statueX + 16, statueY + 82);
-        this.ctx.lineTo(statueX + 6, statueY + 42);
-        this.ctx.closePath();
-        this.ctx.fill();
-        this.ctx.fillRect(statueX - 7, statueY + 8, 14, 36);
-        this.ctx.fillRect(statueX - 44, statueY + 12, 88, 10);
-        this.ctx.beginPath();
-        this.ctx.arc(statueX, statueY, 10, 0, Math.PI * 2);
-        this.ctx.fill();
-      }
-    }
-
-    // Clouds.
-    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.24)';
-    for (let i = -1; i < 5; i++) {
-      const x = i * 210 - cloudOffset;
-      const y = 70 + (i % 3) * 55;
-      this.ctx.beginPath();
-      this.ctx.arc(x + 36, y, 24, 0, Math.PI * 2);
-      this.ctx.arc(x + 60, y - 10, 30, 0, Math.PI * 2);
-      this.ctx.arc(x + 92, y, 22, 0, Math.PI * 2);
-      this.ctx.arc(x + 66, y + 12, 26, 0, Math.PI * 2);
-      this.ctx.fill();
     }
 
     // Ground.
@@ -484,25 +489,35 @@ export class Game {
       this.ctx.restore();
     }
 
-    // Pipes.
-    for (const pipe of this.pipes) {
+    // Pipes with color variation.
+    const pipeColors = [
+      { main: '#009C3B', accent: '#FFDF00' },  // Brazil green/gold
+      { main: '#FF6B6B', accent: '#4ECDC4' },  // Coral/teal
+      { main: '#9B59B6', accent: '#F1C40F' },  // Purple/gold
+      { main: '#E74C3C', accent: '#3498DB' },  // Red/blue
+      { main: '#2ECC71', accent: '#E67E22' },  // Green/orange
+    ];
+    
+    for (let i = 0; i < this.pipes.length; i++) {
+      const pipe = this.pipes[i];
+      const colorSet = pipeColors[i % pipeColors.length];
       const bottomPipeY = pipe.gapY + this.pipeGap;
       const bottomPipeHeight = this.height - bottomPipeY - 50;
 
-      this.ctx.fillStyle = this.worldMode === 'blocks' ? '#4CC9F0' : '#009C3B';
+      this.ctx.fillStyle = this.worldMode === 'blocks' ? '#4CC9F0' : colorSet.main;
       this.ctx.fillRect(pipe.x, 0, this.pipeWidth, pipe.gapY);
       this.ctx.fillRect(pipe.x, bottomPipeY, this.pipeWidth, bottomPipeHeight);
 
-      this.ctx.fillStyle = this.worldMode === 'blocks' ? '#90BE6D' : '#FFDF00';
-      this.ctx.fillRect(pipe.x + 6, pipe.gapY * 0.48, this.pipeWidth - 12, 12);
-      this.ctx.fillRect(pipe.x + 6, bottomPipeY + bottomPipeHeight * 0.2, this.pipeWidth - 12, 12);
+      this.ctx.fillStyle = this.worldMode === 'blocks' ? '#90BE6D' : colorSet.accent;
+      this.ctx.fillRect(pipe.x + 8, pipe.gapY * 0.48, this.pipeWidth - 16, 16);
+      this.ctx.fillRect(pipe.x + 8, bottomPipeY + bottomPipeHeight * 0.2, this.pipeWidth - 16, 16);
 
-      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.18)';
-      this.ctx.fillRect(pipe.x + 8, 0, 10, pipe.gapY);
-      this.ctx.fillRect(pipe.x + 8, bottomPipeY, 10, bottomPipeHeight);
+      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+      this.ctx.fillRect(pipe.x + 10, 0, 14, pipe.gapY);
+      this.ctx.fillRect(pipe.x + 10, bottomPipeY, 14, bottomPipeHeight);
 
-      this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
-      this.ctx.lineWidth = 3;
+      this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+      this.ctx.lineWidth = 4;
       this.ctx.strokeRect(pipe.x, 0, this.pipeWidth, pipe.gapY);
       this.ctx.strokeRect(pipe.x, bottomPipeY, this.pipeWidth, bottomPipeHeight);
     }
@@ -556,62 +571,67 @@ export class Game {
     if (this.selectedAnimal === 'tucano') {
       this.ctx.fillStyle = '#111';
       this.ctx.beginPath();
-      this.ctx.ellipse(-2, 0, 21, 16, -0.1, 0, Math.PI * 2);
+      this.ctx.ellipse(-3, 0, 32, 24, -0.1, 0, Math.PI * 2);
       this.ctx.fill();
       this.ctx.beginPath();
-      this.ctx.ellipse(-18, -1, 11, 10, -0.2, 0, Math.PI * 2);
+      this.ctx.ellipse(-27, -2, 17, 15, -0.2, 0, Math.PI * 2);
       this.ctx.fill();
       this.ctx.save();
-      this.ctx.translate(-4, 2);
+      this.ctx.translate(-6, 3);
       this.ctx.rotate(wingAngle);
       this.ctx.fillStyle = '#1C1C1C';
       this.ctx.beginPath();
-      this.ctx.moveTo(-4, -1);
-      this.ctx.quadraticCurveTo(-18, 8, -12, 20);
-      this.ctx.quadraticCurveTo(4, 13, 9, 2);
+      this.ctx.moveTo(-6, -2);
+      this.ctx.quadraticCurveTo(-27, 12, -18, 30);
+      this.ctx.quadraticCurveTo(6, 20, 14, 3);
       this.ctx.closePath();
       this.ctx.fill();
       this.ctx.restore();
       this.ctx.fillStyle = '#F8F8F2';
       this.ctx.beginPath();
-      this.ctx.moveTo(-16, -2);
-      this.ctx.quadraticCurveTo(-4, 4, -8, 15);
-      this.ctx.quadraticCurveTo(-19, 9, -16, -2);
+      this.ctx.moveTo(-24, -3);
+      this.ctx.quadraticCurveTo(-6, 6, -12, 23);
+      this.ctx.quadraticCurveTo(-29, 14, -24, -3);
       this.ctx.fill();
-      const beakGrad = this.ctx.createLinearGradient(6, -8, 38, 10);
+      const beakGrad = this.ctx.createLinearGradient(9, -12, 57, 15);
       beakGrad.addColorStop(0, '#FFE66D');
       beakGrad.addColorStop(0.6, '#FF9F1C');
       beakGrad.addColorStop(1, '#F77F00');
       this.ctx.fillStyle = beakGrad;
       this.ctx.beginPath();
-      this.ctx.moveTo(4, -8);
-      this.ctx.quadraticCurveTo(30, -16, 38, -3);
-      this.ctx.quadraticCurveTo(22, 0, 7, 3);
+      this.ctx.moveTo(6, -12);
+      this.ctx.quadraticCurveTo(45, -24, 57, -5);
+      this.ctx.quadraticCurveTo(33, 0, 11, 5);
       this.ctx.closePath();
       this.ctx.fill();
       this.ctx.fillStyle = '#111';
       this.ctx.beginPath();
-      this.ctx.moveTo(28, -9);
-      this.ctx.quadraticCurveTo(40, -7, 36, 1);
-      this.ctx.quadraticCurveTo(28, -1, 26, -5);
+      this.ctx.moveTo(42, -14);
+      this.ctx.quadraticCurveTo(60, -11, 54, 2);
+      this.ctx.quadraticCurveTo(42, -2, 39, -8);
       this.ctx.closePath();
       this.ctx.fill();
     } else if (this.selectedAnimal === 'arara') {
       this.ctx.fillStyle = '#1565C0';
       this.ctx.beginPath();
-      this.ctx.ellipse(-4, 0, 22, 17, 0, 0, Math.PI * 2);
+      this.ctx.ellipse(-6, 0, 33, 26, 0, 0, Math.PI * 2);
       this.ctx.fill();
       this.ctx.fillStyle = '#FF3D00';
       this.ctx.beginPath();
-      this.ctx.ellipse(-18, -2, 10, 10, 0, 0, Math.PI * 2);
+      this.ctx.ellipse(-27, -3, 15, 15, 0, 0, Math.PI * 2);
       this.ctx.fill();
       this.ctx.save();
-      this.ctx.translate(-2, 3);
+      this.ctx.translate(-3, 5);
       this.ctx.rotate(wingAngle);
       this.ctx.fillStyle = '#0D47A1';
       this.ctx.beginPath();
-      this.ctx.moveTo(-2, 0);
-      this.ctx.quadraticCurveTo(-18, 10, -10, 22);
+      this.ctx.moveTo(-3, 0);
+      this.ctx.quadraticCurveTo(-27, 15, -15, 33);
+      this.ctx.quadraticCurveTo(9, 21, 18, 2);
+      this.ctx.closePath();
+      this.ctx.fill();
+      this.ctx.restore();
+      this.ctx.fillStyle = '#FFD54F';
       this.ctx.quadraticCurveTo(6, 14, 12, 1);
       this.ctx.closePath();
       this.ctx.fill();
@@ -626,54 +646,54 @@ export class Game {
     } else if (this.selectedAnimal === 'capivara') {
       this.ctx.fillStyle = '#8D6E63';
       this.ctx.beginPath();
-      this.ctx.ellipse(-4, 2, 24, 15, 0.05, 0, Math.PI * 2);
+      this.ctx.ellipse(-6, 3, 36, 23, 0.05, 0, Math.PI * 2);
       this.ctx.fill();
       this.ctx.beginPath();
-      this.ctx.ellipse(-20, -2, 12, 10, -0.1, 0, Math.PI * 2);
+      this.ctx.ellipse(-30, -3, 18, 15, -0.1, 0, Math.PI * 2);
       this.ctx.fill();
       this.ctx.fillStyle = '#6D4C41';
-      this.ctx.fillRect(-25, 9, 8, 8);
-      this.ctx.fillRect(-10, 10, 8, 8);
-      this.ctx.fillRect(6, 10, 8, 8);
+      this.ctx.fillRect(-38, 14, 12, 12);
+      this.ctx.fillRect(-15, 15, 12, 12);
+      this.ctx.fillRect(9, 15, 12, 12);
       this.ctx.save();
-      this.ctx.translate(-1, 1);
+      this.ctx.translate(-2, 2);
       this.ctx.rotate(wingAngle * 0.3);
       this.ctx.fillStyle = '#A1887F';
       this.ctx.beginPath();
-      this.ctx.ellipse(2, 0, 10, 7, 0.1, 0, Math.PI * 2);
+      this.ctx.ellipse(3, 0, 15, 11, 0.1, 0, Math.PI * 2);
       this.ctx.fill();
       this.ctx.restore();
     } else if (this.selectedAnimal === 'jaguar') {
       this.ctx.fillStyle = '#F9A825';
       this.ctx.beginPath();
-      this.ctx.ellipse(-4, 0, 22, 14, -0.05, 0, Math.PI * 2);
+      this.ctx.ellipse(-6, 0, 33, 21, -0.05, 0, Math.PI * 2);
       this.ctx.fill();
       this.ctx.fillStyle = '#6D4C41';
       this.ctx.beginPath();
-      this.ctx.ellipse(-18, -2, 11, 10, 0, 0, Math.PI * 2);
+      this.ctx.ellipse(-27, -3, 17, 15, 0, 0, Math.PI * 2);
       this.ctx.fill();
       this.ctx.save();
-      this.ctx.translate(-2, 2);
+      this.ctx.translate(-3, 3);
       this.ctx.rotate(wingAngle * 0.75);
       this.ctx.fillStyle = '#5D4037';
       this.ctx.beginPath();
-      this.ctx.moveTo(0, -2);
-      this.ctx.quadraticCurveTo(-16, 10, -7, 22);
-      this.ctx.quadraticCurveTo(10, 12, 12, 1);
+      this.ctx.moveTo(0, -3);
+      this.ctx.quadraticCurveTo(-24, 15, -11, 33);
+      this.ctx.quadraticCurveTo(15, 18, 18, 2);
       this.ctx.closePath();
       this.ctx.fill();
       this.ctx.restore();
       this.ctx.fillStyle = '#212121';
-      this.ctx.fillRect(10, -6, 10, 3);
-      this.ctx.fillRect(12, -1, 8, 3);
+      this.ctx.fillRect(15, -9, 15, 5);
+      this.ctx.fillRect(18, -2, 12, 5);
     } else if (this.selectedAnimal === 'jow') {
       // Jow - The legendary Jonatha-bird (custom image)
       // Cancel the bird rotation for photos - they should stay upright
       this.ctx.rotate(-this.tucano.rotation);
       const img = this.customImages.get('jow');
       if (img && img.complete && img.naturalWidth > 0) {
-        // Draw the actual photo - larger size, maintain aspect ratio
-        const targetHeight = 120;
+        // Draw the actual photo - larger size (180px), maintain aspect ratio
+        const targetHeight = 180;
         const aspect = img.width / img.height;
         const drawWidth = targetHeight * aspect;
         // Center the image on the bird position
@@ -697,8 +717,8 @@ export class Game {
       this.ctx.rotate(-this.tucano.rotation);
       const img = this.customImages.get('thais');
       if (img && img.complete && img.naturalWidth > 0) {
-        // Draw the actual photo - larger size, maintain aspect ratio
-        const targetHeight = 120;
+        // Draw the actual photo - larger size (180px), maintain aspect ratio
+        const targetHeight = 180;
         const aspect = img.width / img.height;
         const drawWidth = targetHeight * aspect;
         // Center the image on the bird position
