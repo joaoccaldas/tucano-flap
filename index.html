@@ -88,8 +88,47 @@
       margin: 0 auto 20px;
       display: block;
       background: rgba(0,0,0,0.3);
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
     }
     #animal-preview.hidden { display: none; }
+    
+    /* Mobile adjustments */
+    @media (max-width: 768px) {
+      #landing-screen {
+        padding: 16px;
+        align-items: flex-start;
+        padding-top: 60px;
+      }
+      .menu-card {
+        padding: 20px;
+        width: 95vw;
+      }
+      .menu-title {
+        font-size: 32px;
+        text-align: center;
+      }
+      .menu-subtitle {
+        font-size: 14px;
+        text-align: center;
+      }
+      .menu-input, .menu-select {
+        padding: 12px 16px;
+        font-size: 18px;
+      }
+      .menu-button {
+        padding: 14px 24px;
+        font-size: 20px;
+        width: 100%;
+      }
+      .menu-row {
+        flex-direction: column;
+        gap: 12px;
+      }
+      #animal-preview {
+        width: 80px;
+        height: 80px;
+      }
+    }
   </style>
   <script type="module" crossorigin src="./bundle.js"></script>
 </head>

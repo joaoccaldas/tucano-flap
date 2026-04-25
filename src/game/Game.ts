@@ -48,10 +48,10 @@ export class Game {
   }
   
   private loadCustomImages(): void {
-    // Load custom sprites for Jow and Thais
+    // Load custom sprites for Jow and Thais - use relative paths
     const imageFiles = [
-      { name: 'jow', src: './sprites/jow.jpg' },
-      { name: 'thais', src: './sprites/thais.jpg' }
+      { name: 'jow', src: 'sprites/jow.jpg' },
+      { name: 'thais', src: 'sprites/thais.jpg' }
     ];
     
     for (const { name, src } of imageFiles) {

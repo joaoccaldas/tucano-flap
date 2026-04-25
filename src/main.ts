@@ -19,10 +19,10 @@ const menuAnimal = document.getElementById('menu-animal') as HTMLSpanElement | n
 const menuDifficulty = document.getElementById('menu-difficulty') as HTMLSpanElement | null;
 const animalPreview = document.getElementById('animal-preview') as HTMLImageElement | null;
 
-// Animal preview images mapping
+// Animal preview images mapping - use absolute paths for GitHub Pages
 const animalImages: Record<string, string> = {
-  jow: './sprites/jow.jpg',
-  thais: './sprites/thais.jpg',
+  jow: 'sprites/jow.jpg',
+  thais: 'sprites/thais.jpg',
 };
 
 function updateAnimalPreview(): void {
