@@ -55,11 +55,12 @@ export class Game {
   private loadBackground(): void {
     // Single panoramic image that loops seamlessly
     const img = new Image();
+    img.crossOrigin = 'anonymous';  // Enable CORS for GitHub Pages
     img.onload = () => {
-      console.log('Loaded panoramic background');
+      console.log('Loaded panoramic background: ' + img.naturalWidth + 'x' + img.naturalHeight);
     };
-    img.onerror = () => {
-      console.warn('Failed to load panoramic background');
+    img.onerror = (e) => {
+      console.error('Failed to load panoramic background:', e);
     };
     img.src = 'backgrounds/brazil-coast-panorama.jpg';
     this.bgImage = img;
@@ -692,8 +693,8 @@ export class Game {
       this.ctx.rotate(-this.tucano.rotation);
       const img = this.customImages.get('jow');
       if (img && img.complete && img.naturalWidth > 0) {
-        // Draw the actual photo - larger size (180px), maintain aspect ratio
-        const targetHeight = 180;
+        // Draw the actual photo - TWICE AS LARGE (360px), maintain aspect ratio
+        const targetHeight = 360;
         const aspect = img.width / img.height;
         const drawWidth = targetHeight * aspect;
         // Center the image on the bird position
@@ -701,7 +702,7 @@ export class Game {
         const offsetY = -targetHeight / 2;
         // Add glow effect
         this.ctx.shadowColor = 'rgba(212, 165, 116, 0.6)';
-        this.ctx.shadowBlur = 15;
+        this.ctx.shadowBlur = 20;
         this.ctx.drawImage(img, offsetX, offsetY, drawWidth, targetHeight);
         this.ctx.shadowBlur = 0;
       } else {
@@ -717,8 +718,8 @@ export class Game {
       this.ctx.rotate(-this.tucano.rotation);
       const img = this.customImages.get('thais');
       if (img && img.complete && img.naturalWidth > 0) {
-        // Draw the actual photo - larger size (180px), maintain aspect ratio
-        const targetHeight = 180;
+        // Draw the actual photo - TWICE AS LARGE (360px), maintain aspect ratio
+        const targetHeight = 360;
         const aspect = img.width / img.height;
         const drawWidth = targetHeight * aspect;
         // Center the image on the bird position
@@ -726,7 +727,7 @@ export class Game {
         const offsetY = -targetHeight / 2;
         // Add glow effect
         this.ctx.shadowColor = 'rgba(245, 222, 179, 0.6)';
-        this.ctx.shadowBlur = 15;
+        this.ctx.shadowBlur = 20;
         this.ctx.drawImage(img, offsetX, offsetY, drawWidth, targetHeight);
         this.ctx.shadowBlur = 0;
       } else {
