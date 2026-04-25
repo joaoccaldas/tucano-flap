@@ -80,6 +80,9 @@ if (menuDifficulty) {
   menuDifficulty.textContent = game.getDifficulty();
 }
 
+// Initial preview update
+updateAnimalPreview();
+
 function syncMenu(): void {
   const nextName = nameInput?.value || 'Nono Caldas';
   game.setPlayerName(nextName);
