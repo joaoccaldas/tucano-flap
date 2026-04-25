@@ -693,17 +693,16 @@ export class Game {
       this.ctx.rotate(-this.tucano.rotation);
       const img = this.customImages.get('jow');
       if (img && img.complete && img.naturalWidth > 0) {
-        // Draw the actual photo - TWICE AS LARGE (360px), maintain aspect ratio
-        const targetHeight = 360;
-        const aspect = img.width / img.height;
-        const drawWidth = targetHeight * aspect;
+        // Draw the actual photo - WIDER aspect for better look
+        const targetWidth = 280;  // Fixed width for consistent sizing
+        const targetHeight = 200; // Shorter height for wider look
         // Center the image on the bird position
-        const offsetX = -drawWidth / 2;
+        const offsetX = -targetWidth / 2;
         const offsetY = -targetHeight / 2;
         // Add glow effect
         this.ctx.shadowColor = 'rgba(212, 165, 116, 0.6)';
         this.ctx.shadowBlur = 20;
-        this.ctx.drawImage(img, offsetX, offsetY, drawWidth, targetHeight);
+        this.ctx.drawImage(img, offsetX, offsetY, targetWidth, targetHeight);
         this.ctx.shadowBlur = 0;
       } else {
         // Fallback: simple bird shape
@@ -718,17 +717,16 @@ export class Game {
       this.ctx.rotate(-this.tucano.rotation);
       const img = this.customImages.get('thais');
       if (img && img.complete && img.naturalWidth > 0) {
-        // Draw the actual photo - TWICE AS LARGE (360px), maintain aspect ratio
-        const targetHeight = 360;
-        const aspect = img.width / img.height;
-        const drawWidth = targetHeight * aspect;
+        // Draw the actual photo - WIDER aspect for better look
+        const targetWidth = 280;  // Fixed width for consistent sizing
+        const targetHeight = 200; // Shorter height for wider look
         // Center the image on the bird position
-        const offsetX = -drawWidth / 2;
+        const offsetX = -targetWidth / 2;
         const offsetY = -targetHeight / 2;
         // Add glow effect
         this.ctx.shadowColor = 'rgba(245, 222, 179, 0.6)';
         this.ctx.shadowBlur = 20;
-        this.ctx.drawImage(img, offsetX, offsetY, drawWidth, targetHeight);
+        this.ctx.drawImage(img, offsetX, offsetY, targetWidth, targetHeight);
         this.ctx.shadowBlur = 0;
       } else {
         // Fallback: simple bird shape
