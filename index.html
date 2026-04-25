@@ -78,6 +78,18 @@
       font-family: inherit;
       margin-bottom: 22px;
     }
+    /* Animal preview image */
+    #animal-preview {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #00ff88;
+      margin: 0 auto 20px;
+      display: block;
+      background: rgba(0,0,0,0.3);
+    }
+    #animal-preview.hidden { display: none; }
   </style>
   <script type="module" crossorigin src="./bundle.js"></script>
 </head>
@@ -89,6 +101,10 @@
         <div class="menu-subtitle">A colorful Brazil-themed landing page for TV and mobile. Choose your player name, your Brazil animal hero, and your difficulty, then start the flight. Current hero: <span id="menu-name" class="menu-player">Nono Caldas</span> with <span id="menu-animal" class="menu-player">tucano</span> on <span id="menu-difficulty" class="menu-player">easy</span>.</div>
         <label class="menu-label" for="player-name">Player name</label>
         <input id="player-name" class="menu-input" type="text" maxlength="24" value="Nono Caldas" autocomplete="off" />
+        
+        <!-- Animal preview image -->
+        <img id="animal-preview" src="" alt="Selected animal" class="hidden" />
+        
         <label class="menu-label" for="animal-select">Animal sprite</label>
         <select id="animal-select" class="menu-select">
           <option value="tucano">Tucano</option>

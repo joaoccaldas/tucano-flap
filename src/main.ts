@@ -17,6 +17,24 @@ const animalSelect = document.getElementById('animal-select') as HTMLSelectEleme
 const difficultySelect = document.getElementById('difficulty-select') as HTMLSelectElement | null;
 const menuAnimal = document.getElementById('menu-animal') as HTMLSpanElement | null;
 const menuDifficulty = document.getElementById('menu-difficulty') as HTMLSpanElement | null;
+const animalPreview = document.getElementById('animal-preview') as HTMLImageElement | null;
+
+// Animal preview images mapping
+const animalImages: Record<string, string> = {
+  jow: './sprites/jow.jpg',
+  thais: './sprites/thais.jpg',
+};
+
+function updateAnimalPreview(): void {
+  const selectedAnimal = animalSelect?.value || 'tucano';
+  if (animalPreview && animalImages[selectedAnimal]) {
+    animalPreview.src = animalImages[selectedAnimal];
+    animalPreview.classList.remove('hidden');
+  } else if (animalPreview) {
+    animalPreview.classList.add('hidden');
+    animalPreview.src = '';
+  }
+}
 
 if (!canvas) {
   throw new Error('Canvas not found');
@@ -67,6 +85,7 @@ function syncMenu(): void {
   game.setPlayerName(nextName);
   game.setAnimal((animalSelect?.value as 'tucano' | 'arara' | 'capivara' | 'jaguar' | 'jow' | 'thais') || 'tucano');
   game.setDifficulty((difficultySelect?.value as 'easy' | 'normal' | 'chaos') || 'easy');
+  updateAnimalPreview();
   if (nameInput) {
     nameInput.value = game.getPlayerName();
   }

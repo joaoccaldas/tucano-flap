@@ -36,11 +36,35 @@ export class Game {
   private pipeGap = 220;
   private pipeTimer: number = 0;
   
+  // Custom animal images
+  private customImages: Map<string, HTMLImageElement> = new Map();
+  
   constructor(ctx: CanvasRenderingContext2D, width: number, height: number) {
     this.ctx = ctx;
     this.width = width;
     this.height = height;
+    this.loadCustomImages();
     this.reset();
+  }
+  
+  private loadCustomImages(): void {
+    // Load custom sprites for Jow and Thais
+    const imageFiles = [
+      { name: 'jow', src: './sprites/jow.jpg' },
+      { name: 'thais', src: './sprites/thais.jpg' }
+    ];
+    
+    for (const { name, src } of imageFiles) {
+      const img = new Image();
+      img.onload = () => {
+        console.log(`Loaded ${name} sprite`);
+      };
+      img.onerror = () => {
+        console.warn(`Failed to load ${name} sprite, will use fallback`);
+      };
+      img.src = src;
+      this.customImages.set(name, img);
+    }
   }
   
   private reset(): void {
@@ -598,106 +622,33 @@ export class Game {
       this.ctx.fillRect(10, -6, 10, 3);
       this.ctx.fillRect(12, -1, 8, 3);
     } else if (this.selectedAnimal === 'jow') {
-      // Jow - The legendary Jonatha-bird
-      // Body - warm brown tones
-      this.ctx.fillStyle = '#8B7355';
-      this.ctx.beginPath();
-      this.ctx.ellipse(-2, 0, 23, 18, -0.05, 0, Math.PI * 2);
-      this.ctx.fill();
-      // Head - slightly lighter
-      this.ctx.fillStyle = '#D4A574';
-      this.ctx.beginPath();
-      this.ctx.ellipse(-20, -3, 13, 12, -0.15, 0, Math.PI * 2);
-      this.ctx.fill();
-      // Wing - golden tipped
-      this.ctx.save();
-      this.ctx.translate(-4, 2);
-      this.ctx.rotate(wingAngle);
-      this.ctx.fillStyle = '#6B5344';
-      this.ctx.beginPath();
-      this.ctx.moveTo(-6, 0);
-      this.ctx.quadraticCurveTo(-22, 12, -14, 26);
-      this.ctx.quadraticCurveTo(6, 16, 10, 2);
-      this.ctx.closePath();
-      this.ctx.fill();
-      // Golden wing tips
-      this.ctx.fillStyle = '#FFD700';
-      this.ctx.beginPath();
-      this.ctx.moveTo(-14, 26);
-      this.ctx.quadraticCurveTo(-10, 28, -6, 24);
-      this.ctx.quadraticCurveTo(-8, 20, -12, 22);
-      this.ctx.closePath();
-      this.ctx.fill();
-      this.ctx.restore();
-      // Tail feathers
-      this.ctx.fillStyle = '#8B7355';
-      this.ctx.beginPath();
-      this.ctx.moveTo(20, 0);
-      this.ctx.lineTo(35, -8);
-      this.ctx.lineTo(38, 0);
-      this.ctx.lineTo(35, 8);
-      this.ctx.closePath();
-      this.ctx.fill();
-      // Golden tail tip
-      this.ctx.fillStyle = '#FFD700';
-      this.ctx.beginPath();
-      this.ctx.moveTo(35, -8);
-      this.ctx.lineTo(42, -10);
-      this.ctx.lineTo(44, 0);
-      this.ctx.lineTo(42, 10);
-      this.ctx.lineTo(35, 8);
-      this.ctx.closePath();
-      this.ctx.fill();
+      // Jow - The legendary Jonatha-bird (custom image)
+      const img = this.customImages.get('jow');
+      if (img && img.complete && img.naturalWidth > 0) {
+        // Draw the actual photo
+        const size = 100;
+        this.ctx.drawImage(img, -size/2 - 10, -size/2, size, size * (img.height / img.width));
+      } else {
+        // Fallback: simple bird shape
+        this.ctx.fillStyle = '#8B7355';
+        this.ctx.beginPath();
+        this.ctx.ellipse(-2, 0, 23, 18, -0.05, 0, Math.PI * 2);
+        this.ctx.fill();
+      }
     } else if (this.selectedAnimal === 'thais') {
-      // Thais - The graceful Thais-bird
-      // Body - elegant light tones
-      this.ctx.fillStyle = '#E8D5C4';
-      this.ctx.beginPath();
-      this.ctx.ellipse(-2, 0, 22, 17, -0.03, 0, Math.PI * 2);
-      this.ctx.fill();
-      // Head - warm complexion
-      this.ctx.fillStyle = '#F5DEB3';
-      this.ctx.beginPath();
-      this.ctx.ellipse(-19, -2, 12, 11, -0.1, 0, Math.PI * 2);
-      this.ctx.fill();
-      // Wing - flowing with golden accents
-      this.ctx.save();
-      this.ctx.translate(-4, 2);
-      this.ctx.rotate(wingAngle * 1.1);
-      this.ctx.fillStyle = '#D4C4B0';
-      this.ctx.beginPath();
-      this.ctx.moveTo(-5, 0);
-      this.ctx.quadraticCurveTo(-20, 11, -12, 24);
-      this.ctx.quadraticCurveTo(5, 15, 9, 1);
-      this.ctx.closePath();
-      this.ctx.fill();
-      // Golden wing highlights
-      this.ctx.fillStyle = '#FFD700';
-      this.ctx.beginPath();
-      this.ctx.moveTo(-16, 18);
-      this.ctx.lineTo(-12, 24);
-      this.ctx.lineTo(-8, 20);
-      this.ctx.quadraticCurveTo(-10, 16, -14, 18);
-      this.ctx.closePath();
-      this.ctx.fill();
-      this.ctx.restore();
-      // Tail - flowing
-      this.ctx.fillStyle = '#E8D5C4';
-      this.ctx.beginPath();
-      this.ctx.moveTo(18, 0);
-      this.ctx.quadraticCurveTo(32, -6, 38, -2);
-      this.ctx.quadraticCurveTo(35, 4, 28, 6);
-      this.ctx.quadraticCurveTo(22, 4, 18, 0);
-      this.ctx.fill();
-      // Golden tail tip
-      this.ctx.fillStyle = '#FFD700';
-      this.ctx.beginPath();
-      this.ctx.moveTo(38, -2);
-      this.ctx.lineTo(45, -4);
-      this.ctx.lineTo(46, 2);
-      this.ctx.lineTo(40, 4);
-      this.ctx.closePath();
-      this.ctx.fill();
+      // Thais - The graceful Thais-bird (custom image)
+      const img = this.customImages.get('thais');
+      if (img && img.complete && img.naturalWidth > 0) {
+        // Draw the actual photo
+        const size = 100;
+        this.ctx.drawImage(img, -size/2 - 10, -size/2, size, size * (img.height / img.width));
+      } else {
+        // Fallback: simple bird shape
+        this.ctx.fillStyle = '#E8D5C4';
+        this.ctx.beginPath();
+        this.ctx.ellipse(-2, 0, 22, 17, -0.03, 0, Math.PI * 2);
+        this.ctx.fill();
+      }
     }
 
     this.ctx.fillStyle = '#2ECC71';
