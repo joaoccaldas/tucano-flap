@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && esbuild src/main.ts --bundle --outfile=dist/bundle.js --format=esm --minify=false --sourcemap=external && cp index.html dist/ && mkdir -p dist/sprites && cp -r public/sprites/* dist/sprites/ 2>/dev/null || true",
+    "build": "tsc && esbuild src/main.ts --bundle --outfile=dist/bundle.js --format=esm --minify=false --sourcemap=external && cp index.html dist/ && mkdir -p dist/sprites && cp public/sprites/*.png dist/sprites/ 2>/dev/null || true",
     "preview": "vite preview",
     "test": "vitest",
     "test:coverage": "vitest --coverage",

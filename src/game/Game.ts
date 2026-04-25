@@ -48,10 +48,10 @@ export class Game {
   }
   
   private loadCustomImages(): void {
-    // Load custom sprites for Jow and Thais - use relative paths
+    // Load custom sprites for Jow and Thais - use PNG with transparency
     const imageFiles = [
-      { name: 'jow', src: 'sprites/jow.jpg' },
-      { name: 'thais', src: 'sprites/thais.jpg' }
+      { name: 'jow', src: 'sprites/jow.png' },
+      { name: 'thais', src: 'sprites/thais.png' }
     ];
     
     for (const { name, src } of imageFiles) {
@@ -625,9 +625,15 @@ export class Game {
       // Jow - The legendary Jonatha-bird (custom image)
       const img = this.customImages.get('jow');
       if (img && img.complete && img.naturalWidth > 0) {
-        // Draw the actual photo
-        const size = 100;
-        this.ctx.drawImage(img, -size/2 - 10, -size/2, size, size * (img.height / img.width));
+        // Draw the actual photo - larger size
+        const size = 140;
+        const aspect = img.height / img.width;
+        const drawHeight = size * aspect;
+        // Add glow effect
+        this.ctx.shadowColor = 'rgba(212, 165, 116, 0.6)';
+        this.ctx.shadowBlur = 20;
+        this.ctx.drawImage(img, -size/2 - 10, -drawHeight/2, size, drawHeight);
+        this.ctx.shadowBlur = 0;
       } else {
         // Fallback: simple bird shape
         this.ctx.fillStyle = '#8B7355';
@@ -639,9 +645,15 @@ export class Game {
       // Thais - The graceful Thais-bird (custom image)
       const img = this.customImages.get('thais');
       if (img && img.complete && img.naturalWidth > 0) {
-        // Draw the actual photo
-        const size = 100;
-        this.ctx.drawImage(img, -size/2 - 10, -size/2, size, size * (img.height / img.width));
+        // Draw the actual photo - larger size
+        const size = 140;
+        const aspect = img.height / img.width;
+        const drawHeight = size * aspect;
+        // Add glow effect
+        this.ctx.shadowColor = 'rgba(245, 222, 179, 0.6)';
+        this.ctx.shadowBlur = 20;
+        this.ctx.drawImage(img, -size/2 - 10, -drawHeight/2, size, drawHeight);
+        this.ctx.shadowBlur = 0;
       } else {
         // Fallback: simple bird shape
         this.ctx.fillStyle = '#E8D5C4';
