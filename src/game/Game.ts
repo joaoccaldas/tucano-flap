@@ -623,16 +623,21 @@ export class Game {
       this.ctx.fillRect(12, -1, 8, 3);
     } else if (this.selectedAnimal === 'jow') {
       // Jow - The legendary Jonatha-bird (custom image)
+      // Cancel the bird rotation for photos - they should stay upright
+      this.ctx.rotate(-this.tucano.rotation);
       const img = this.customImages.get('jow');
       if (img && img.complete && img.naturalWidth > 0) {
-        // Draw the actual photo - larger size
-        const size = 140;
-        const aspect = img.height / img.width;
-        const drawHeight = size * aspect;
+        // Draw the actual photo - larger size, maintain aspect ratio
+        const targetHeight = 120;
+        const aspect = img.width / img.height;
+        const drawWidth = targetHeight * aspect;
+        // Center the image on the bird position
+        const offsetX = -drawWidth / 2;
+        const offsetY = -targetHeight / 2;
         // Add glow effect
         this.ctx.shadowColor = 'rgba(212, 165, 116, 0.6)';
-        this.ctx.shadowBlur = 20;
-        this.ctx.drawImage(img, -size/2 - 10, -drawHeight/2, size, drawHeight);
+        this.ctx.shadowBlur = 15;
+        this.ctx.drawImage(img, offsetX, offsetY, drawWidth, targetHeight);
         this.ctx.shadowBlur = 0;
       } else {
         // Fallback: simple bird shape
@@ -643,16 +648,21 @@ export class Game {
       }
     } else if (this.selectedAnimal === 'thais') {
       // Thais - The graceful Thais-bird (custom image)
+      // Cancel the bird rotation for photos - they should stay upright
+      this.ctx.rotate(-this.tucano.rotation);
       const img = this.customImages.get('thais');
       if (img && img.complete && img.naturalWidth > 0) {
-        // Draw the actual photo - larger size
-        const size = 140;
-        const aspect = img.height / img.width;
-        const drawHeight = size * aspect;
+        // Draw the actual photo - larger size, maintain aspect ratio
+        const targetHeight = 120;
+        const aspect = img.width / img.height;
+        const drawWidth = targetHeight * aspect;
+        // Center the image on the bird position
+        const offsetX = -drawWidth / 2;
+        const offsetY = -targetHeight / 2;
         // Add glow effect
         this.ctx.shadowColor = 'rgba(245, 222, 179, 0.6)';
-        this.ctx.shadowBlur = 20;
-        this.ctx.drawImage(img, -size/2 - 10, -drawHeight/2, size, drawHeight);
+        this.ctx.shadowBlur = 15;
+        this.ctx.drawImage(img, offsetX, offsetY, drawWidth, targetHeight);
         this.ctx.shadowBlur = 0;
       } else {
         // Fallback: simple bird shape
