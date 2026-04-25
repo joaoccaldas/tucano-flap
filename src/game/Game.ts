@@ -39,12 +39,35 @@ export class Game {
   // Custom animal images
   private customImages: Map<string, HTMLImageElement> = new Map();
   
+  // Background images for scrolling
+  private bgImages: HTMLImageElement[] = [];
+  private currentBgIndex: number = 0;
+  private bgOffset: number = 0;
+  
   constructor(ctx: CanvasRenderingContext2D, width: number, height: number) {
     this.ctx = ctx;
     this.width = width;
     this.height = height;
     this.loadCustomImages();
+    this.loadBackgrounds();
     this.reset();
+  }
+  
+  private loadBackgrounds(): void {
+    const bgFiles = [
+      'backgrounds/brazil-coast-1.jpg',
+      'backgrounds/brazil-coast-2.jpg',
+      'backgrounds/brazil-coast-3.jpg'
+    ];
+    
+    for (const src of bgFiles) {
+      const img = new Image();
+      img.onload = () => {
+        console.log(`Loaded background: ${src}`);
+      };
+      img.src = src;
+      this.bgImages.push(img);
+    }
   }
   
   private loadCustomImages(): void {
@@ -303,18 +326,45 @@ export class Game {
   private render(): void {
     const groundY = this.height - 50;
     const time = this.lastTime / 1000;
-    const sky = this.ctx.createLinearGradient(0, 0, 0, groundY);
-    if (this.worldMode === 'blocks') {
-      sky.addColorStop(0, '#5E60CE');
-      sky.addColorStop(0.5, '#5390D9');
-      sky.addColorStop(1, '#80FFDB');
+    
+    // Scrolling background images (Brazil coast)
+    if (this.bgImages.length > 0 && this.bgImages[0].complete) {
+      // Scroll background slowly
+      this.bgOffset += this.pipeSpeed * 0.05; // Very slow scroll
+      const bgWidth = this.width * 1.5; // Scale to cover width
+      const bgHeight = this.height;
+      
+      // Draw current background
+      const currentBg = this.bgImages[this.currentBgIndex];
+      if (currentBg.complete) {
+        // Calculate position for seamless loop
+        const xPos = -(this.bgOffset % bgWidth);
+        
+        // Draw current image
+        this.ctx.drawImage(currentBg, xPos, 0, bgWidth, bgHeight);
+        // Draw next copy for seamless scrolling
+        this.ctx.drawImage(currentBg, xPos + bgWidth, 0, bgWidth, bgHeight);
+        
+        // Switch to next background every 10 seconds
+        if (Math.floor(time / 10) % this.bgImages.length !== this.currentBgIndex) {
+          this.currentBgIndex = Math.floor(time / 10) % this.bgImages.length;
+        }
+      }
     } else {
-      sky.addColorStop(0, '#FF6B6B');
-      sky.addColorStop(0.55, '#FECA57');
-      sky.addColorStop(1, '#48DBFB');
+      // Fallback gradient sky
+      const sky = this.ctx.createLinearGradient(0, 0, 0, groundY);
+      if (this.worldMode === 'blocks') {
+        sky.addColorStop(0, '#5E60CE');
+        sky.addColorStop(0.5, '#5390D9');
+        sky.addColorStop(1, '#80FFDB');
+      } else {
+        sky.addColorStop(0, '#FF6B6B');
+        sky.addColorStop(0.55, '#FECA57');
+        sky.addColorStop(1, '#48DBFB');
+      }
+      this.ctx.fillStyle = sky;
+      this.ctx.fillRect(0, 0, this.width, this.height);
     }
-    this.ctx.fillStyle = sky;
-    this.ctx.fillRect(0, 0, this.width, this.height);
 
     const farOffset = (time * this.pipeSpeed * 0.1) % this.width;
     const midOffset = (time * this.pipeSpeed * 0.3) % this.width;
