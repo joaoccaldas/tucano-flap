@@ -39,9 +39,8 @@ export class Game {
   // Custom animal images
   private customImages: Map<string, HTMLImageElement> = new Map();
   
-  // Background images for scrolling
-  private bgImages: HTMLImageElement[] = [];
-  private currentBgIndex: number = 0;
+  // Background panorama
+  private bgImage: HTMLImageElement | null = null;
   private bgOffset: number = 0;
   
   constructor(ctx: CanvasRenderingContext2D, width: number, height: number) {
@@ -49,25 +48,21 @@ export class Game {
     this.width = width;
     this.height = height;
     this.loadCustomImages();
-    this.loadBackgrounds();
+    this.loadBackground();
     this.reset();
   }
   
-  private loadBackgrounds(): void {
-    const bgFiles = [
-      'backgrounds/brazil-coast-1.jpg',
-      'backgrounds/brazil-coast-2.jpg',
-      'backgrounds/brazil-coast-3.jpg'
-    ];
-    
-    for (const src of bgFiles) {
-      const img = new Image();
-      img.onload = () => {
-        console.log(`Loaded background: ${src}`);
-      };
-      img.src = src;
-      this.bgImages.push(img);
-    }
+  private loadBackground(): void {
+    // Single panoramic image that loops seamlessly
+    const img = new Image();
+    img.onload = () => {
+      console.log('Loaded panoramic background');
+    };
+    img.onerror = () => {
+      console.warn('Failed to load panoramic background');
+    };
+    img.src = 'backgrounds/brazil-coast-panorama.jpg';
+    this.bgImage = img;
   }
   
   private loadCustomImages(): void {
@@ -327,29 +322,29 @@ export class Game {
     const groundY = this.height - 50;
     const time = this.lastTime / 1000;
     
-    // Scrolling background images (Brazil coast)
-    if (this.bgImages.length > 0 && this.bgImages[0].complete) {
-      // Scroll background slowly
-      this.bgOffset += this.pipeSpeed * 0.05; // Very slow scroll
-      const bgWidth = this.width * 1.5; // Scale to cover width
-      const bgHeight = this.height;
+    // Scrolling panoramic background (Brazil coast)
+    if (this.bgImage && this.bgImage.complete && this.bgImage.naturalWidth > 0) {
+      // Scroll background slowly - seamless loop
+      this.bgOffset += this.pipeSpeed * 0.02;
       
-      // Draw current background
-      const currentBg = this.bgImages[this.currentBgIndex];
-      if (currentBg.complete) {
-        // Calculate position for seamless loop
-        const xPos = -(this.bgOffset % bgWidth);
-        
-        // Draw current image
-        this.ctx.drawImage(currentBg, xPos, 0, bgWidth, bgHeight);
-        // Draw next copy for seamless scrolling
-        this.ctx.drawImage(currentBg, xPos + bgWidth, 0, bgWidth, bgHeight);
-        
-        // Switch to next background every 10 seconds
-        if (Math.floor(time / 10) % this.bgImages.length !== this.currentBgIndex) {
-          this.currentBgIndex = Math.floor(time / 10) % this.bgImages.length;
-        }
-      }
+      const img = this.bgImage;
+      const imgWidth = img.naturalWidth;
+      const imgHeight = img.naturalHeight;
+      
+      // Scale to fill height, maintain aspect
+      const scale = this.height / imgHeight;
+      const drawWidth = imgWidth * scale;
+      const drawHeight = this.height;
+      
+      // Calculate position for seamless looping
+      const xPos = -(this.bgOffset % drawWidth);
+      
+      // Draw current position
+      this.ctx.drawImage(img, xPos, 0, drawWidth, drawHeight);
+      // Draw next copy for seamless loop
+      this.ctx.drawImage(img, xPos + drawWidth, 0, drawWidth, drawHeight);
+      // Draw one more to cover any gaps
+      this.ctx.drawImage(img, xPos + drawWidth * 2, 0, drawWidth, drawHeight);
     } else {
       // Fallback gradient sky
       const sky = this.ctx.createLinearGradient(0, 0, 0, groundY);
