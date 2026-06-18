@@ -1,16 +1,18 @@
-# 🐦 Tucano Flap
+# Tucano Flap
 
-A Flappy Bird-style game with Brazilian soul — made for Samsung TV browsers.
+## Brazilian Flappy Bird with Soul
 
-## Concept
-- **Character**: Tucano (toucan) flying through Brazilian landscapes
-- **Setting**: Amazon rainforest → Rio favelas → Salvador beaches → São Paulo skyline
-- **Vibe**: Chilled bossa nova meets arcade adrenaline
+A flappy-bird style game built for Samsung TV browsers, infused with Brazilian nostalgia.
+
+## The Concept
+- **Character:** Tucano (toucan) flying through brazilian landscapes
+- **Setting:** Amazon rainforest ← Rio favelas ← Salvadar beaches ← São Paulo skyline
+- **Vibe:** Chill bossa nova meets arcade adrenaline
 
 ## Controls (Samsung TV)
-- **OK/Enter**: Flap
-- **Arrow keys**: Navigate menus
-- **Back**: Pause/menu
+- **OK/Enter:** Flap
+- **Arrow keys:** Navigate menu
+- **Back:** Pause/menu
 
 ## Tech Stack
 - TypeScript + HTML5 Canvas
@@ -21,5 +23,14 @@ A Flappy Bird-style game with Brazilian soul — made for Samsung TV browsers.
 ## Recursive Build System
 See `BUILD_SYSTEM.md` for the self-improving architecture.
 
+## Status
+Playable. Family-tested. Brazilian-approved.
+
 ## License
-MIT - Open source sprites from OpenGameArt
+MIT  — Open source spirit from OpenGameArt
+
+## Creator
+Built by kids and father. A brown Brazilian, swimmer, father of two, surfer, and functional analyst, who likes to build games in his spare time.
+
+
+*"Built by Jmão Caldas with Brazilian nostalgia | joaoccaldas@gmail.com"*
