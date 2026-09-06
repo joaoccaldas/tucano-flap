@@ -15,7 +15,7 @@
   "devDependencies": {
     "@types/node": "^20",
     "esbuild": "^0.28.0",
-    "eslint": "^8",
+    "eslint": "^10",
     "typescript": "^5",
     "vite": "^5",
     "vitest": "^1"
