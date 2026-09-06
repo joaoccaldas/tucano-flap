@@ -2,12 +2,12 @@
 
 ## Brazilian Flappy Bird with Soul
 
-A flappy-bird style game built for Samsung TV browsers, infused with Brazilian nostalgia.
+A Flappy Bird-style game built for Samsung TV browsers and inspired by Brazilian landscapes and music.
 
-## The Concept
-- **Character:** Tucano (toucan) flying through brazilian landscapes
-- **Setting:** Amazon rainforest ← Rio favelas ← Salvadar beaches ← São Paulo skyline
-- **Vibe:** Chill bossa nova meets arcade adrenaline
+## Concept
+- **Character:** Tucano (toucan)
+- **Settings:** Amazon rainforest, Rio, Salvador beaches, São Paulo skyline
+- **Vibe:** Bossa nova-inspired arcade game
 
 ## Controls (Samsung TV)
 - **OK/Enter:** Flap
@@ -16,21 +16,18 @@ A flappy-bird style game built for Samsung TV browsers, infused with Brazilian n
 
 ## Tech Stack
 - TypeScript + HTML5 Canvas
-- Vite for build
+- Vite
 - Web Audio API
 - Samsung TV remote support
 
-## Recursive Build System
-See `BUILD_SYSTEM.md` for the self-improving architecture.
+## Build System
+See `BUILD_SYSTEM.md` for the project architecture.
 
 ## Status
-Playable. Family-tested. Brazilian-approved.
+Playable and family-tested.
 
 ## License
-MIT  — Open source spirit from OpenGameArt
+MIT.
 
 ## Creator
-Built by kids and father. A brown Brazilian, swimmer, father of two, surfer, and functional analyst, who likes to build games in his spare time.
-
-
-*"Built by Jmão Caldas with Brazilian nostalgia | joaoccaldas@gmail.com"*
+Built by João Caldas as a Brazilian-themed family game project.
