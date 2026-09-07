@@ -84,7 +84,7 @@ if (menuDifficulty) {
 updateAnimalPreview();
 
 function syncMenu(): void {
-  const nextName = nameInput?.value || 'Nono Caldas';
+  const nextName = nameInput?.value || 'Explorer';
   game.setPlayerName(nextName);
   game.setAnimal((animalSelect?.value as 'tucano' | 'arara' | 'capivara' | 'jaguar' | 'jow' | 'thais') || 'tucano');
   game.setDifficulty((difficultySelect?.value as 'easy' | 'normal' | 'chaos') || 'easy');

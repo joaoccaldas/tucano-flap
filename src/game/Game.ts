@@ -13,7 +13,7 @@ export class Game {
   private lastTime: number = 0;
   private score: number = 0;
   private highScore: number = 0;
-  private playerName: string = 'Nono Caldas';
+  private playerName: string = 'Explorer';
   private selectedAnimal: AnimalSprite = 'tucano';
   private selectedDifficulty: Difficulty = 'easy';
   private scoreHistory: ScoreEntry[] = [];
@@ -243,7 +243,7 @@ export class Game {
   
   setPlayerName(name: string): void {
     const trimmed = name.trim();
-    this.playerName = trimmed.length > 0 ? trimmed : 'Nono Caldas';
+    this.playerName = trimmed.length > 0 ? trimmed : 'Explorer';
   }
 
   getPlayerName(): string {
