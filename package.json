@@ -9,8 +9,7 @@
     "test": "vitest",
     "test:coverage": "vitest --coverage",
     "lint": "eslint src --ext .ts,.js",
-    "audit:perf": "node scripts/perf-audit.js",
-    "eval:game": "node scripts/evaluate-game.js"
+    "eval:game": "node --experimental-strip-types scripts/evaluate-game.ts"
   },
   "devDependencies": {
     "@types/node": "^20",
