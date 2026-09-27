@@ -27,3 +27,6 @@ jobs:
         run: npm run build
       - name: Tests
         run: npx vitest run
+
+      - name: Game evaluator
+        run: npm run eval:game
